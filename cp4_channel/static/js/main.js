@@ -5,6 +5,7 @@ var charts = [];
 var channels = [];
 var levelTresholdLighRed = 19.5;
 var levelTresholdRed = 18.9;
+var isModalVisible = false; // Flag to track modal visibility
 
 // Loop through each graph wrapper and initialize the chart
 graphWrappers.forEach(function (wrapper, index) {
@@ -90,6 +91,7 @@ graphWrappers.forEach(function (wrapper, index) {
 // Define a variable to store the interval reference
 let intervalRef;
 
+
 // open connection with websocket
 var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
 socket.onmessage = function (event) {
@@ -100,12 +102,6 @@ socket.onmessage = function (event) {
     for (var i = 0; i < charts.length; i++){
         channels[i].push([data.message.date_time, data.message['level_' + (i + 1)]]);
     }
-
-    // channels[0].push([data.message.date_time, data.message.level_1]);
-    // channels[1].push([data.message.date_time, data.message.level_2]);
-    // channels[2].push([data.message.date_time, data.message.level_3]);
-    // channels[3].push([data.message.date_time, data.message.level_4]);
-    
 
     // Limit the number of elements in the channels array to 20
     for (var i = 0; i < channels.length; i++) {
@@ -174,25 +170,19 @@ socket.onmessage = function (event) {
     }
     console.log("channels --->", channels);
     console.log("charts --->", charts);
-
-
-    // document.querySelector('#update1').innerText = data.message.date_time;
-    // document.querySelector('#update2').innerText = data.message.date_time;
-    // document.querySelector('#update3').innerText = data.message.date_time;
-    // document.querySelector('#update4').innerText = data.message.date_time;
     
     // Get the current timestamp
     const currentTime = Date.now();
 
     // Iterate over the update elements and update their inner text
     for (let i = 1; i < channels.length; i++) {
-        const elementId = `update${i}`;
+        const elementId = `update${i + 1}`;
         const element = document.querySelector(`#${elementId}`);
         if (element) {
         const dateTime = data.message.date_time; // Get the date and time string from data.message.date_time
         const timestamp = new Date(dateTime).getTime(); // Convert the date and time string to a timestamp
         const secondsDiff = Math.floor((currentTime - timestamp) / 1000); // Calculate the difference in seconds
-        const timeText = (secondsDiff >= 0) ? `${secondsDiff} seconds ago` : 'Future update'; // Format the time text
+        const timeText = (secondsDiff >= 0) ? `Latest update: ${secondsDiff} sec ago` : 'Future update'; // Format the time text
 
         element.innerText = timeText; // Set the time text as the inner text of the element
         }
@@ -204,10 +194,11 @@ socket.onmessage = function (event) {
     }
 
     // Update the time difference every second
+
     intervalRef = setInterval(() => {
         const currentTime = Date.now();
-        for (let i = 1; i <= 4; i++) {
-        const elementId = `update${i}`;
+        for (let i = 1; i < channels.length; i++) {
+        const elementId = `update${i + 1}`;
         const element = document.querySelector(`#${elementId}`);
         if (element) {
             const dateTime = data.message.date_time; // Get the date and time string from data.message.date_time
@@ -220,12 +211,9 @@ socket.onmessage = function (event) {
         }
     }, 1000); // Update every second
 
-    // Update message level each time we received data from websocket
+    
 
-    // document.querySelector('#sensor1').innerText = data.message.level_1 || 'Disabled';
-    // document.querySelector('#sensor2').innerText = data.message.level_2 || 'Disabled';
-    // document.querySelector('#sensor3').innerText = data.message.level_3 || 'Disabled';
-    // document.querySelector('#sensor4').innerText = data.message.level_4 || 'Disabled';
+    // Update message level each time we received data from websocket
 
     for (var i = 0; i < charts.length; i++) {
         var sensorElement = document.querySelector('#sensor' + (i + 1));
@@ -233,90 +221,84 @@ socket.onmessage = function (event) {
         sensorElement.innerText = (levelValue !== undefined) ? levelValue + '%' : 'Disabled';
     }
 
-    // Remove animation class if data is not undefined and add reading_value class
+    // // Show modal alert
+    // function showModalAlert() {
+    //     const modalElement = document.getElementById('modalAlert');
+    //     modalElement.style.display = 'flex';
+    //     isModalVisible = true;
+    // }
+    
+    // // Hide modal alert
+    // function hideModalAlert() {
+    //     const modalElement = document.getElementById('modalAlert');
+    //     modalElement.style.display = 'none';
+    //     isModalVisible = false;
+    // }
 
-    // if (data.message.level_1 !== undefined) {
-    //     const channel_1 = document.querySelector('#channel_1');
-    //     const sensor1 = document.querySelector('#sensor1');
-    //     const heartbeat1 = document.querySelector('#heart1');
-    //     channel_1.classList.add('color_name');
-    //     sensor1.classList.remove('reading_undefined');
-    //     heartbeat1.classList.remove('heartbeat_color');
-    //     heartbeat1.classList.add('heart_beat'); 
-    // // sensor1.classList.add('reading_value');
-    // }
-    // if (data.message.level_2 !== undefined) {
-    //     const channel_2 = document.querySelector('#channel_2');
-    //     const sensor2 = document.querySelector('#sensor2');
-    //     const heartbeat2 = document.querySelector('#heart2');
-    //     channel_2.classList.add('color_name');
-    //     sensor2.classList.remove('reading_undefined');
-    //     heartbeat2.classList.remove('heartbeat_color');
-    //     heartbeat2.classList.add('heart_beat'); 
-    //     // sensor2.classList.add('reading_value');
-    // }
-    // if (data.message.level_3 !== undefined) {
-    //     const channel_3 = document.querySelector('#channel_3');
-    //     const sensor3 = document.querySelector('#sensor3');
-    //     const heartbeat3 = document.querySelector('#heart3');
-    //     channel_3.classList.add('color_name');
-    //     sensor3.classList.remove('reading_undefined');
-    //     heartbeat3.classList.remove('heartbeat_color');
-    //     heartbeat3.classList.add('heart_beat');
-    //     // sensor3.classList.add('reading_value');
-    // }
-    // if (data.message.level_4 !== undefined) {
-    //     const channel_4 = document.querySelector('#channel_4');
-    //     const sensor4 = document.querySelector('#sensor4');
-    //     const heartbeat4 = document.querySelector('#heart4');
-    //     channel_4.classList.add('color_name');
-    //     heartbeat4.classList.remove('heartbeat_color');
-    //     heartbeat4.classList.add('heart_beat'); 
-    //     sensor4.classList.remove('reading_undefined');
-    //     // sensor4.classList.add('reading_value');
-    // }
+
+   
+
+    let isAnySensorDefined = false;
 
     for (var i = 0; i < charts.length; i++) {
         var channelElement = document.querySelector('#channel_' + (i + 1));
         var sensorElement = document.querySelector('#sensor' + (i + 1));
         var heartbeatElement = document.querySelector('#heart' + (i + 1));
-    
-    
-        // if (data.message['level_' + (i + 1)] !== undefined) {
+
+
+        // Check the condition and show/hide modal accordingly
+
+        // if (data.message['level_' + (i + 1)] === undefined) {
+        //     showModalAlert();
+        // } else {
+        //     // Code for when the condition is met
         //     channelElement.classList.add('tiffany_color');
         //     sensorElement.classList.remove('gray_color');
         //     sensorElement.classList.add('tiffany_color');
-        //     // heartbeatElement.classList.remove('gray_color');
         //     heartbeatElement.classList.add('heart_beat');
+        
+        //     // Hide the modal alert if it is shown
+        //     hideModalAlert();
         // }
 
-
-        // Show modal alert
-        function showModalAlert() {
-            const modalElement = document.getElementById('modalAlert');
-            modalElement.style.display = 'flex';
-        }
-        
-        // Hide modal alert
-        function hideModalAlert() {
-            const modalElement = document.getElementById('modalAlert');
-            modalElement.style.display = 'none';
+        // Check if the condition is met for any sensor
+        if (data.message['level_' + (i + 1)] !== undefined) {
+            isAnySensorDefined = true;
+            break;
         }
 
-        // Check the condition and show/hide modal accordingly
-        if (data.message['level_' + (i + 1)] === undefined) {
-            showModalAlert();
-        } else {
-            // Code for when the condition is met
+    }
+
+     // Show/hide modal based on the condition
+     if (!isAnySensorDefined) {
+        showModalAlert();
+    } else {
+        // Code for when the condition is met
             channelElement.classList.add('tiffany_color');
             sensorElement.classList.remove('gray_color');
             sensorElement.classList.add('tiffany_color');
             heartbeatElement.classList.add('heart_beat');
-        
-            // Hide the modal alert if it is shown
-            hideModalAlert();
-        }
+        hideModalAlert();
+    }
 
+    // Show modal alert
+    function showModalAlert() {
+        // Only show the modal if it is not already visible
+        if (!isModalVisible) {
+        const modalElement = document.getElementById('modalAlert');
+        modalElement.style.display = 'flex';
+        isModalVisible = true;
+        }
+    }
+
+    // Hide modal alert
+    function hideModalAlert() {
+        // Only hide the modal if it is currently visible
+        if (isModalVisible) {
+        const modalElement = document.getElementById('modalAlert');
+        modalElement.style.display = 'none';
+        isModalVisible = false;
+        }
     }
 
 }

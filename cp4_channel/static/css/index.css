@@ -45,6 +45,10 @@ body{
 
 .sensor_box{
     display: flex;
+/* NEW */
+    /* flex: 0 0 23%;
+    margin: 10px; */
+
     flex-flow: column;
     /* border: 1px solid black; */
     /* width: 22vh; */
@@ -59,8 +63,13 @@ body{
 
 }
 
+.sensor-s {
+    height: 38vh;
+    width: 12vw;
+  }
+
 .sensor-m{
-    height: 43vh;
+    height: 42vh;
     width: 24vw;
 }
 
@@ -216,3 +225,22 @@ body{
 * {
     font-family: 'Roboto', sans-serif;
 }
+
+
+/* Define media query for smaller screens where only two sensors are displayed per row */
+/* @media (max-width: 768px) {
+    .outerwraper {
+      flex-wrap: wrap;
+    }
+    
+    .sensor_box {
+      flex-basis: calc(50% - 20px); 
+    }
+  } */
+
+/* Define media query for even smaller screens where only one sensor is displayed per row */
+/* @media (max-width: 480px) {
+    .sensor_box {
+        flex-basis: 100%;
+    }
+} */

@@ -10,7 +10,7 @@ def index(request):
         # { 'id': 'channel_5', 'name': 'Sensor 5', 'channel': 'sensor5', "heartbeat": 'heart5', 'update': 'update5', 'active': True },
         # { 'id': 'channel_6', 'name': 'Sensor 6', 'channel': 'sensor6', "heartbeat": 'heart6', 'update': 'update6', 'active': True },
         # { 'id': 'channel_7', 'name': 'Sensor 7', 'channel': 'sensor7', "heartbeat": 'heart7', 'update': 'update7', 'active': True },
-        # { 'id': 'channel_8', 'name': 'Sensor 8', 'channel': 'sensor8', "heartbeat": 'heart8', 'update': 'update4', 'active': True },
+        # { 'id': 'channel_8', 'name': 'Sensor 8', 'channel': 'sensor8', "heartbeat": 'heart8', 'update': 'update8', 'active': True },
 
         # { 'id': 'channel_9', 'name': 'Sensor 9', 'channel': 'sensor9', "heartbeat": 'heart9', 'update': 'update9', 'active': True },
         # { 'id': 'channel_10', 'name': 'Sensor 10', 'channel': 'sensor10', "heartbeat": 'heart10', 'update': 'update10', 'active': True },
@@ -22,7 +22,7 @@ def index(request):
     # sensor_amount = 6
     return render(request, 'index2.html', 
                   context={
-                      'text': 'Please wait, Data will be fetched within 60 seconds!',
+                    #   'text': 'Please wait, Data will be fetched within 60 seconds!',
                       'sensors': sensors,
                       'sensor_amount': sensor_amount
                       })
