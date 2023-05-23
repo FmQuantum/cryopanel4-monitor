@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/icon/favicon.ico' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <title>Cryopanel4 Monitor</title>
+</head>
+<body>
+    <div class="top-navbar" >
+        <a href="#" class="logo-img">
+            <img src="{% static 'images/icon/quantum-logo.png' %}" alt="quantum-logo" />
+        </a>
+        <div class="logo-name">Quantum Cryogenics</div>
+        <div id="app" style="display: flex; flex: 1; justify-content: center; margin-top: 15px;"></div>
+    </div>
+    <div class="outerwraper">
+        <div id="modalAlert" class="modal">
+            <div class="modal-content">
+                <h2>Please wait. The data will be fetched in:</h2>
+                <br>
+                <p id="countdown" class="countdown-style">60</p>
+            </div>
+        </div>
+          
+        {% if sensor_amount <= 4 %}
+            {% for each_sensor in sensors %}
+                <div class="sensor_box sensor-xl">
+                    <div class="sensor-title">
+                        <div id="{{ each_sensor.id }}" class="sensor_name">{{ each_sensor.name }}</div>
+                        <div id="{{ each_sensor.channel }}" class="latest_reading">NO DATA</div>
+                        <div id="{{ each_sensor.heartbeat }}" class="sensor_name" style="justify-content:flex-end; padding-right: 1vw;">
+                            <i class="fas fa-heart fa-lg"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div id="{{ each_sensor.update }}" class="sensor-below-title"></div>
+                    </div>
+                    
+                    <div class="graph-wrapper" id="graph_{{ forloop.counter }}"></div>
+                    <!-- <div class="graph-wrapper" id="graph_{{ forloop.counter }}">
+                        <script>
+                            var options = {
+                                series: [{
+                                    name: "Values",
+                                    data: [20.05, 20.8, 20.08, 20.01, 19.08, 21.90, 20.05, 20.07, 20.06, 18.5,
+                                    20.05, 20.8, 20.08, 20.01, 19.08, 21.90, 20.05, 20.07, 20.06, 18.5,
+                                    20.05, 20.8, 20.08, 20.01, 19.08, 21.90, 20.05, 20.07, 20.06, 18.5,]
+                                }],
+                                chart: {
+                                    foreColor: '#ffffff',
+                                    height: 350,
+                                    type: 'area',
+                                    zoom: {
+                                        enabled: false
+                                    },
+                                    dropShadow: {
+                                        enabled: true,
+                                        color: '#000',
+                                        top: 18,
+                                        left: 7,
+                                        blur: 10,
+                                        opacity: 0.2
+                                    },
+                                    toolbar:{
+                                        show: false,
+                                    }
+                                },
+                                grid: {
+                                    show:false,
+                                },
+                                colors: ['#00FEFC'],
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                stroke: {
+                                    curve: 'smooth',
+                                    width: 2,
+                                },
+                                title: {
+                                    text: 'O2',
+                                    align: 'center'
+                                },
+                                xaxis: {
+                                    type: 'datetime',
+                                    flotaing: false,
+                                    labels: {
+                                        show: true,
+                                        trim: true,
+                                    },
+                                    stroke: {
+
+                                    },
+                                    categories: [
+                                            1678771200000, 1678857600000, 1678944000000, 1679030400000, 1679116800000,
+                                            1679203200000, 1679289600000, 1679376000000, 1679462400000, 1679548800000,
+                                            1679635200000, 1679721600000, 1679808000000, 1679894400000, 1679980800000,
+                                            1680067200000, 1680153600000, 1680240000000, 1680326400000, 1680412800000,
+                                            1680499200000, 1680585600000, 1680672000000, 1680758400000, 1680844800000,
+                                            1680931200000, 1681017600000, 1681104000000, 1681190400000, 1681276800000
+                                        ],
+                                    }
+                                };
+
+                                var chart = new ApexCharts(document.querySelector("#graph_{{ forloop.counter }}"), options);
+                                chart.render();
+                        </script>
+                    </div> -->
+                </div>
+            {% endfor %}
+            {% elif sensor_amount <= 8 %}
+            {% for each_sensor in sensors %}
+                <div class="sensor_box sensor-m">
+                    <div class="sensor-title">
+                        <div class="sensor_name">{{ each_sensor.name }}</div>
+                        <div id="{{ each_sensor.channel }}" class="latest_reading ">NO DATA</div>
+                        <div id="{{ each_sensor.update }}" class="sensor-below-title"></div>
+                    </div>
+                    <div class="graph-wrapper" id="graph_{{ forloop.counter }}"></div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="bottom-navbar">
+    </div>
+
+    <script src="{% static 'js/main.js' %}"></script>
+   
+</body>
+</html>

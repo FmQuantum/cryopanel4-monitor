@@ -1,0 +1,218 @@
+body{
+    margin: 0;
+    padding: 0;
+    background: rgb(63,67,119);
+    background: radial-gradient(circle, rgba(63,67,119,1) 0%, rgba(37,44,65,1) 100%); 
+}
+
+
+.top-navbar{
+    display: flex;
+    flex: 1;
+    height: 65px;
+    box-sizing: border-box;
+
+    background: rgba( 156, 255, 250, 0.15 );
+    box-shadow: 0 8px 32px 0 rgba( 156, 255, 250, 0.1 );
+    backdrop-filter: blur( 4px );
+    -webkit-backdrop-filter: blur( 4px );
+    border-radius: 3px;
+    border-bottom: 1px solid rgba( 255, 255, 255, 0.18 );
+}
+
+.logo-name{
+    margin-top: 22px;
+    margin-left: 10px;
+    color: #fafafa;
+    font-size: larger;
+}
+
+.logo-img{
+    margin-left: 20px;
+    margin-top: 8px;
+}
+
+.outerwraper{
+    /* background-color: blue; */
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 100px);
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+    align-items: center;
+
+}
+
+.sensor_box{
+    display: flex;
+    flex-flow: column;
+    /* border: 1px solid black; */
+    /* width: 22vh; */
+    height: 30vh;
+    /* flex: 1; */
+    background: rgba( 156, 255, 250, 0.15 );
+    box-shadow: 0 8px 32px 0 rgba( 156, 255, 250, 0.1 );
+    backdrop-filter: blur( 4px );
+    -webkit-backdrop-filter: blur( 4px );
+    border-radius: 3px;
+    border: 1px solid rgba( 255, 255, 255, 0.18 );
+
+}
+
+.sensor-m{
+    height: 43vh;
+    width: 24vw;
+}
+
+.sensor-xl{
+    height: 42vh;
+    width: 48vw;
+}
+
+.sensor-title{
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid rgba( 255, 255, 255, 0.18 );
+    background: rgba( 60, 145, 230, 0.15 );
+}
+
+.sensor-below-title{
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
+    padding-right: 1vw;
+    padding-top: 1vh;
+    align-items: center;
+    color: rgba(255,255,255,0.6);
+    /* text-transform: lowercase; */
+    letter-spacing: 2px;
+    font-size: 10px;
+    padding-bottom: -4vh;
+    margin-bottom: -4vh;
+}
+
+.sensor_name {
+    display: flex;
+    flex: 1;
+    justify-content: flex-start;
+    padding-left: 1vw;
+    align-items: center;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 12px;
+}
+
+.latest_reading {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    letter-spacing: 1px;
+}
+
+.tiffany_color {
+    color: rgba(0, 254, 252,0.8);
+    text-shadow: 0px 0px 12px rgba(45,255,196,0.6);
+}
+
+.gray_color {
+    color: rgba(255,255,255,0.6);
+    text-shadow: 0px 0px 12px rgba(102, 119, 136, 0.6);
+}
+
+
+.color_name {
+    color: rgba(0, 254, 252,0.8);
+    text-shadow: 0px 0px 12px rgba(45,255,196,0.6);
+}
+
+.reading_value {
+    animation: blink2  2.5s infinite;
+}
+.heart_beat {
+    color: rgba(0, 254, 252,0.8);
+    animation: blink2  1.5s infinite;
+}
+/* blink effect  */
+/* @keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    20% {
+        opacity: 0;
+    }
+    60% {
+        opacity: 0.75;
+    }
+    100% {
+        opacity: 1;
+    }
+} */
+
+@keyframes blink2 {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.50;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.graph-wrapper{
+    display: flex;
+    flex: 4;
+    justify-content: center;
+    flex-flow: column;
+}
+
+
+
+.bottom-navbar{
+    display: flex;
+    flex: 1;
+    height: 50px;
+    border-top: 1px solid black;
+    box-sizing: border-box;
+    }
+
+/*  MODAL AND COUNTDOWN*/
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Adjust the z-index value as needed */
+    }
+    
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 4px;
+    text-align: center;
+    }
+
+.modal-content h2 {
+    color: #333;
+    }
+
+.countdown-style {
+    font-size: 24px;
+    color: black
+    }
+
+/* for all */
+* {
+    font-family: 'Roboto', sans-serif;
+}
