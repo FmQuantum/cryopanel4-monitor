@@ -18,12 +18,16 @@ def index(request):
         # { 'id': 'channel_12', 'name': 'Sensor 12', 'channel': 'sensor12', "heartbeat": 'heart12', 'update': 'update12', 'active': True },
         
     ]
+    # sensor4 = [
+    #     { 'id': 'channel_4', 'name': 'Sensor 4', 'channel': 'sensor4', "heartbeat": 'heart4', 'update': 'update4', 'active': True }
+    # ]
     sensor_amount = len(sensors)
     # sensor_amount = 6
     return render(request, 'index2.html', 
                   context={
                     #   'text': 'Please wait, Data will be fetched within 60 seconds!',
                       'sensors': sensors,
+                      # 'sesor4': sensor4,
                       'sensor_amount': sensor_amount
                       })
 

@@ -130,55 +130,59 @@ class WSConsumer(AsyncWebsocketConsumer):
 
     async def read_data(self):
         tz = pytz.timezone('Europe/London')
-        while True:
-            data = self.serial.readline().decode().rstrip()
-            result = data.replace("00/00/00 00:00:00,", "")
+        try:
+            while True:
+                data = self.serial.readline().decode().rstrip()
+                result = data.replace("00/00/00 00:00:00,", "")
 
-            if data:
-                print(f'data ---> {data}')
-            else:
-                print("Waiting for data from CP4")
+                if data:
+                    print(f'data ---> {data}')
+                else:
+                    print("Waiting for data from CP4")
 
-            now = datetime.datetime.now(tz)
-            iso_string = now.isoformat()
-            date_time = now.strftime("%m/%d/%Y %H:%M:%S")
+                now = datetime.datetime.now(tz)
+                iso_string = now.isoformat()
+                date_time = now.strftime("%m/%d/%Y %H:%M:%S")
 
-            result_dict = {}
+                result_dict = {}
 
-            data_values = result.split(',')
+                data_values = result.split(',')
 
-            for value in data_values:
-                match = re.match(r'^(\d+(\.\d+)?)[A-Z]?(\s[A-Z]\d)?$', value.strip())
+                for value in data_values:
+                    match = re.match(r'^(\d+(\.\d+)?)[A-Z]?(\s[A-Z]\d)?$', value.strip())
 
-                if match:
-                    num_value1 = match.group(1)
-                    num_O = num_value1 + 'O'
-                    num_value = float(match.group(1))
-                    alarm_code = match.group(3)
-                    channel_nums = []
-                    for i, item in enumerate(data_values):
-                        if num_O in item:
-                            print(f'num_O ---> {num_O} index ---> {i}')
-                            channel_num = i + 1
-                            channel_nums.append(channel_num)
-                            if alarm_code:
-                                result_dict.setdefault(f'alarm_sensor_{channel_num}', alarm_code.strip())
-                        else:
-                            print('no matched item')
-                    for channel_num in channel_nums:
-                        result_dict[f'level_{channel_num}'] = num_value
-                elif value.strip() in ['VO', 'CA', 'SW', 'FA', 'LA', 'F', 'VL']:
-                    result_dict[value.strip().lower()] = value.strip()
+                    if match:
+                        num_value1 = match.group(1)
+                        num_O = num_value1 + 'O'
+                        num_value = float(match.group(1))
+                        alarm_code = match.group(3)
+                        channel_nums = []
+                        for i, item in enumerate(data_values):
+                            if num_O in item:
+                                print(f'num_O ---> {num_O} index ---> {i}')
+                                channel_num = i + 1
+                                channel_nums.append(channel_num)
+                                if alarm_code:
+                                    result_dict.setdefault(f'alarm_sensor_{channel_num}', alarm_code.strip())
+                            else:
+                                print('no matched item')
+                        for channel_num in channel_nums:
+                            result_dict[f'level_{channel_num}'] = num_value
+                    elif value.strip() in ['VO', 'CA', 'SW', 'FA', 'LA', 'F', 'VL']:
+                        result_dict[value.strip().lower()] = value.strip()
 
-            # print(f'Last update: {date_time} dict ---> {result_dict}')
-            print(f'Last update: {iso_string} dict ---> {result_dict}')
+                # print(f'Last update: {date_time} dict ---> {result_dict}')
+                print(f'Last update: {iso_string} dict ---> {result_dict}')
 
-            result_dict['date_time'] = date_time
-            # result_dict['date_time'] = iso_string
+                result_dict['date_time'] = date_time
+                # result_dict['date_time'] = iso_string
 
-            json_result_dict = json.dumps({'message': result_dict})
-            await self.send(json_result_dict)
+                json_result_dict = json.dumps({'message': result_dict})
+                await self.send(json_result_dict)
 
-            await asyncio.sleep(60)
+                await asyncio.sleep(60)
+        except serial.serialutil.PortNotOpenError as e:
+            # Handle the exception (e.g., log the error, send a message to the WebSocket, etc.)
+            await self.send(f"Serial port is not open: {str(e)}")    
 
     
