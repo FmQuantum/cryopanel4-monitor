@@ -211,7 +211,7 @@ body{
 }
 .heart_beat {
     color: rgba(0, 254, 252,0.8);
-    animation: blink2  1.5s infinite;
+    animation: blink2  1.5s alternate 10;
 }
 /* blink effect  */
 /* @keyframes blink {

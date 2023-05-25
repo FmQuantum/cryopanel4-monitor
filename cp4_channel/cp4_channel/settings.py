@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'channels',
     'channels_redis',
     'grappelli',
+    'autoreload',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
