@@ -31,45 +31,49 @@
                 <select id="graph_dropdown" style="margin-left: 10px;" onchange="toggleRows()">
                     <option>--</option>
                     <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
+                    <option value="2" disabled>2</option>
+                    <option value="3" disabled>3</option>
                 </select>
             </div>
+            
             <div id="row_1" class="row_sensors" style="display: none;">
                 <label for="sensor_dropdown_1" class="dropdown-label">Choose the channels</label>
+                
                 <select id="sensor_dropdown_1" style="margin-left: 10px;"
-                    onchange="disableSelectedOptions('sensor_dropdown_1', 'sensor_dropdown_11')">
+                    onchange="disableSelectedOptions('sensor_dropdown_1', 'sensor_dropdown_11'); validateOptions()">
                     <option>--</option>
-                    <option value="option1">Sensor 1</option>
-                    <option value="option2">Sensor 2</option>
-                    <option value="option3">Sensor 3</option>
-                    <option value="option4">Sensor 4</option>
-                    <option value="option5">Sensor 5</option>
+                    <option id="0" value="option1">Sensor 1</option>
+                    <option id="1" value="option2">Sensor 2</option>
+                    <option id="2" value="option3">Sensor 3</option>
+                    <option id="3" value="option4">Sensor 4</option>
+                    <!-- <option value="option5">Sensor 5</option>
                     <option value="option6">Sensor 6</option>
                     <option value="option7">Sensor 7</option>
                     <option value="option8">Sensor 8</option>
                     <option value="option9">Sensor 9</option>
                     <option value="option10">Sensor 10</option>
                     <option value="option11">Sensor 11</option>
-                    <option value="option12">Sensor 12</option>
+                    <option value="option12">Sensor 12</option> -->
                 </select>
+                
                 <select id="sensor_dropdown_11" style="margin-left: 10px;"
-                    onchange="disableSelectedOptions('sensor_dropdown_11', 'sensor_dropdown_1')">
+                    onchange="disableSelectedOptions('sensor_dropdown_11', 'sensor_dropdown_1'); validateOptions()">
                     <option>--</option>
-                    <option value="option1">Sensor 1</option>
-                    <option value="option2">Sensor 2</option>
-                    <option value="option3">Sensor 3</option>
-                    <option value="option4">Sensor 4</option>
-                    <option value="option5">Sensor 5</option>
+                    <option id="0" value="option1">Sensor 1</option>
+                    <option id="1" value="option2">Sensor 2</option>
+                    <option id="2" value="option3">Sensor 3</option>
+                    <option id="3" value="option4">Sensor 4</option>
+                    <!-- <option value="option5">Sensor 5</option>
                     <option value="option6">Sensor 6</option>
                     <option value="option7">Sensor 7</option>
                     <option value="option8">Sensor 8</option>
                     <option value="option9">Sensor 9</option>
                     <option value="option10">Sensor 10</option>
                     <option value="option11">Sensor 11</option>
-                    <option value="option12">Sensor 12</option>
+                    <option value="option12">Sensor 12</option> -->
                 </select>
             </div>
+            
             <div id="row_2" class="row_sensors" style="display: none;">
                 <label for="sensor_dropdown_2" class="dropdown-label">Choose the channels</label>
                 <select id="sensor_dropdown_2" style="margin-left: 10px;"
@@ -143,27 +147,27 @@
             </div>
         </div>
         <button id="generate_btn" class="container_options" style="display: none;"
-            onclick="showDragModal()">generate</button>
+            onclick="showDragModal()" disabled>generate</button>
     </div>
 
 
     <div class="outerwraper">
-        <div id="modalAlert" class="modal">
+        <!-- <div id="modalAlert" class="modal">
             <div class="modal-content">
                 <h2>Please wait. The data will be fetched in:</h2>
                 <br>
                 <p id="countdown" class="countdown-style">60</p>
             </div>
-        </div>
+        </div> -->
 
         <div id="dragmodal" class="drag-modal">
+            <span class="drag-close" style="color: #fafafa; margin-right: 5px; margin-top:5px;" onclick="closeModal()">&times;</span>
+
             <div class="drag-modal-content">
-                <span class="drag-close">&times;</span>
-                <h2>Draggable Modal</h2>
-                <p>Drag this modal anywhere on the screen.</p>
-                <div id="averageGraph"></div> 
+                <div id="averagechart"></div>
             </div>
         </div>
+        
 
 
 

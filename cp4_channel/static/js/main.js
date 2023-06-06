@@ -1,17 +1,44 @@
 console.log("from main.js file hello!")
 
+var dataFromViews = "{{ data }}";
+console.log(dataFromViews);
 
-// DRAGGABLE MODAL
-// Get the modal element
+function validateOptions() {
+    console.log("function validation triggered");
+    var sensorDropdown1 = document.getElementById("sensor_dropdown_1");
+    var sensorDropdown2 = document.getElementById("sensor_dropdown_11");
 
-// Make the modal draggable
-dragElement(document.getElementById("dragmodal"));
+    var selectedSensor1 = sensorDropdown1.value;
+    var selectedSensor2 = sensorDropdown2.value;
+
+    var generateBtn = document.getElementById("generate_btn");
+
+    if (selectedSensor1 !== "--" && selectedSensor2 !== "--" && selectedSensor1 !== selectedSensor2) {
+        generateBtn.disabled = false;
+    } else {
+        generateBtn.disabled = true;
+    }
+}
+
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Your JavaScript code here
+    // Make the modal draggable
+const modal = document.getElementById("dragmodal");
+const modalContent = modal.querySelector(".drag-modal-content");
+const closeButton = modal.querySelector(".drag-close");
+
+dragElement(modal);
 
 function dragElement(element) {
   let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  element.querySelector('.drag-modal-content').onmousedown = dragMouseDown;
+  modalContent.onmousedown = dragMouseDown;
 
   function dragMouseDown(e) {
+    if (e.target === closeButton) {
+      return; // Skip dragging if clicking on the close button
+    }
     e = e || window.event;
     e.preventDefault();
     pos3 = e.clientX;
@@ -37,11 +64,23 @@ function dragElement(element) {
   }
 }
 
+function closeModal() {
+  console.log("clicked");
+  modal.style.display = "none";
+}
+
+
+  });
+
+
+
 // Show/hide the modal
 function showDragModal() {
   document.getElementById("dragmodal").style.display = "block";
+  const logoImage = document.getElementById('logo-quantum');
   const navbar = document.querySelector('.top-navbar');
   navbar.classList.remove('active');
+  logoImage.src = staticUrl + 'images/icon/quantum-logo.png';
 }
 
 function hideDragModal() {
@@ -214,12 +253,109 @@ graphWrappers.forEach(function (wrapper, index) {
 });
 
 
+// Average Graph
+const ctx = document.getElementById('averagechart');
+
+  var averageOptions = { 
+    series: [{
+        name: "Values1",
+        data: [],
+        color: ['#00FEFC']
+    },{
+        name: "Values2",
+        data: [],
+        color: ['#00FEFC']
+    },{
+        name: "Average",
+        data: [],
+        color: ['#00FEFC']
+    }],
+    chart: {
+        foreColor: '#ffffff',
+        height: 280,
+        // width: 425,
+        type: 'area',
+        zoom: {
+            enabled: false
+        },
+        dropShadow: {
+            enabled: true,
+            color: '#000',
+            top: 18,
+            left: 7,
+            blur: 10,
+            opacity: 0.2
+        },
+        toolbar: {
+            show: false,
+        }
+    },
+    grid: {
+        show: false,
+    },
+    // colors: ['#00FEFC'],
+    dataLabels: {
+        enabled: false
+    },
+    stroke: {
+        curve: 'smooth',
+        width: 2,
+    },
+    title: {
+        text: 'O2',
+        align: 'center'
+    },
+    xaxis: {
+        type: 'datetime',
+        flotaing: false,
+        labels: {
+            formatter: function (value, timestamp) {
+                // return new Date(timestamp) // The formatter function overrides format property
+                const date = new Date(timestamp);
+                const formattedDate = date.toLocaleString('en-GB', {
+                    month: '2-digit',
+                    year: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                return formattedDate;
+            },
+            show: true,
+            trim: true,
+        },
+        stroke: {},
+        categories: [],
+    },
+    yaxis: {
+        min: 0,
+        max: 24,
+    },
+  }
+
+  var myAverageChart = new ApexCharts(ctx, averageOptions);
+  myAverageChart.render();
+
+
 
 
 
 // Define a variable to store the interval reference
 let intervalRef;
 
+
+var dropdown1 = document.getElementById('sensor_dropdown_1');
+var dropdown11 = document.getElementById('sensor_dropdown_11');
+// var dropdown2 = document.getElementById('sensor_dropdown_2');
+// var dropdown22 = document.getElementById('sensor_dropdown_22');
+// var dropdown3 = document.getElementById('sensor_dropdown_3');
+// var dropdown33 = document.getElementById('sensor_dropdown_33');
+var selectedOption1;
+var selectedOption2;
+var AverageGraphDataY4;
+var AverageGraphDataY1;
+var AverageGraphDataX;
+var optionsSelected = false;
 
 // open connection with websocket
 var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
@@ -229,12 +365,12 @@ socket.onmessage = function (event) {
     console.log(data);
 
     // Update the channels array with the received data
-for (var i = 0; i < channels.length; i++) {
-    channels[i].push([data.message.date_time, data.message['level_' + (i + 1)]]);
-    if (channels[i].length > 20) {
-        channels[i].shift(); // Remove the first element
+    for (var i = 0; i < channels.length; i++) {
+        channels[i].push([data.message.date_time, data.message['level_' + (i + 1)]]);
+        if (channels[i].length > 20) {
+            channels[i].shift(); // Remove the first element
+        }
     }
-}
 
     for (var i = 0; i < charts.length; i++){
         channels[i].push([data.message.date_time, data.message['level_' + (i + 1)]]);
@@ -277,6 +413,9 @@ for (var i = 0; i < channels.length; i++) {
             markerFillColor = '#FF0000'; // Change the marker color for data points below 19.5%
         }
 
+
+        
+
         var chart = charts[i];
         chart.updateOptions({
             series: [{
@@ -304,9 +443,190 @@ for (var i = 0; i < channels.length; i++) {
             },
 
         });
+
     }
     console.log("channels --->", channels);
     console.log("charts --->", charts);
+
+
+
+//    // Update the AverageChart
+
+    
+
+
+    function updateGraph() {
+        console.log("updateGrapg function triggered");
+
+        if (channels[selectedOption1] && channels[selectedOption2]) {
+            AverageGraphDataY4 = channels[selectedOption1].map(function (data) {
+              return data[1] !== undefined ? data[1] : 0;
+            });
+        
+            AverageGraphDataY1 = channels[selectedOption2].map(function (data) {
+              return data[1] !== undefined ? data[1] : 0;
+            });
+        
+            AverageGraphDataX = channels[selectedOption1].map(function (data) {
+              return new Date(data[0]).getTime(); // Convert date-time string to timestamp
+            });
+
+            var averageData = [];
+
+            if (AverageGraphDataY4 && AverageGraphDataY1 && AverageGraphDataY4.length === AverageGraphDataY1.length) {
+                for (var i = 0; i < AverageGraphDataY4.length; i++) {
+                    var average = ((AverageGraphDataY4[i] + AverageGraphDataY1[i]) / 2).toFixed(2);
+                    averageData.push(average);
+                }
+            } else {
+            // Handle the case when the arrays are undefined or have different lengths
+            // Display an error message or perform alternative logic
+            }
+
+            var color = '#00FEFC'; // Default color for line 1
+            var color2 = '#00FEFC'; // Default color for line 2
+            var color3; // Default color for line 3
+            var lastValue = channels[selectedOption1][channels[selectedOption1].length - 1][1];
+            var lastValue2 = channels[selectedOption2][channels[selectedOption2].length - 1][1];
+            var lastValue3 = averageData[averageData.length - 1];
+
+            // LINE 1 color determination
+            if (lastValue <= levelTresholdLighRed) {
+                if (lastValue > levelTresholdRed){
+                    color = '#FF758D'; //Pinkish Change the color if the value meets the threshold condition
+                } else {
+                    color = '#FF0000'; //Red Change the color if the value meets the threshold condition
+                }
+            } else {
+                color = '#00FEFC'; // cyan
+            }
+
+            // LINE 2 color determination
+            if (lastValue2 <= levelTresholdLighRed) {
+                if (lastValue2 > levelTresholdRed){
+                    color2 = '#FF758D'; //Pinkish Change the color if the value meets the threshold condition
+                } else {
+                    color2 = '#FF0000'; //Red Change the color if the value meets the threshold condition
+                }
+            } else {
+                color2 = '#00FEFC'; // cyan
+            }
+
+            // LINE 3 color determination
+            if (lastValue3) {
+                color3 = '#800080' // purple
+            }
+
+            // Update the chart options and data
+
+            var Avechart = myAverageChart;
+            if (AverageGraphDataY4 && AverageGraphDataY1 && averageData) {
+                Avechart.updateOptions({
+                    series: [
+                        {
+                            name: "Values1",
+                            data: AverageGraphDataY4,
+                            color: color // Set the color for line 2
+                        },
+                        {
+                            name: "Values2",
+                            data: AverageGraphDataY1,
+                            color: color2 // Set the color for line 2
+                        },
+                        {
+                            name: "Average",
+                            data: averageData,
+                            color: color3 // Set the color for line 2
+                        }
+                    ],
+                    xaxis: {
+                        categories: AverageGraphDataX
+                    },
+                    colors: [color, color2, color3], // Set the color dynamically
+                    annotations: {
+                        points: AverageGraphDataY4.map(function (y, index) {
+                            var markerColor = y < 19.5 ? '#FF0000' : color;
+                            return {
+                                x: AverageGraphDataX[index],
+                                y: y,
+                                marker: {
+                                    size: 4,
+                                    fillColor: markerColor,
+                                    strokeColor: '#FFFFFF',
+                                    strokeWidth: 2,
+                                },
+                            };
+                        }).concat(AverageGraphDataY1.map(function (y, index) {
+                            var markerColor = y < 19.5 ? '#FF0000' : color2;
+                            return {
+                                x: AverageGraphDataX[index],
+                                y: y,
+                                marker: {
+                                    size: 4,
+                                    fillColor: markerColor,
+                                    strokeColor: '#FFFFFF',
+                                    strokeWidth: 2,
+                                },
+                            };
+                        })).concat(averageData.map(function (y, index) {
+                            var markerColor = y < 19.5 ? '#FF0000' : color3;
+                            return {
+                                x: AverageGraphDataX[index],
+                                y: y,
+                                marker: {
+                                    size: 4,
+                                    fillColor: markerColor,
+                                    strokeColor: '#FFFFFF',
+                                    strokeWidth: 2,
+                                },
+                            };
+                        })),
+                        position: 'front',
+                    }
+                });
+            }
+
+            
+        } else {
+        // Handle the case when the selected channels are not available
+        // Display an error message or perform alternative logic
+        }
+    }
+
+    // Add event listener to dropdown1
+    dropdown1.addEventListener('change', function() {
+        selectedOption1 = Number(dropdown1.options[dropdown1.selectedIndex].getAttribute('id'));
+        optionsSelected = true;
+        updateGraph();
+        console.log("selectedOption1:", selectedOption1);
+        console.log("type selectedOption1:", typeof selectedOption1);
+    });
+
+    
+    // Add event listener to dropdown11
+    dropdown11.addEventListener('change', function() {
+        selectedOption2 = Number(dropdown11.options[dropdown11.selectedIndex].getAttribute('id'));
+        optionsSelected = true;
+        updateGraph();
+        console.log("selectedOption2:", selectedOption2);
+        console.log("type selectedOption2:", typeof selectedOption2);
+    });
+
+
+    if (selectedOption1 !== undefined && selectedOption2 !==undefined){
+        console.log("options selected");
+        optionsSelected = true;
+        updateGraph(); 
+    }
+    
+    if (!optionsSelected) {
+        selectedOption1 = 0;
+        selectedOption2 = 2;
+        console.log("options not selected else statement will be executed");
+        updateGraph();     
+    }
+    
+    // var isSelectionComplete = false;
     
     // Get the current timestamp
     const currentTime = Date.now();
@@ -447,7 +767,6 @@ const animationKeyframes = `
 `;
 
 document.addEventListener('DOMContentLoaded', function() {
-
     
 
     try {

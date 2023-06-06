@@ -23,7 +23,7 @@ def index(request):
     # ]
     sensor_amount = len(sensors)
     # sensor_amount = 6
-    return render(request, 'index2.html', 
+    return render(request, 'index2.html',
                   context={
                     #   'text': 'Please wait, Data will be fetched within 60 seconds!',
                       'sensors': sensors,
