@@ -161,27 +161,44 @@
         </div> -->
 
         <div id="dragmodal" class="drag-modal">
-            <span class="drag-close" style="color: #fafafa; margin-right: 5px; margin-top:5px;" onclick="closeModal()">&times;</span>
+            {% comment %} <span class="drag-close" style="border: 2px solid red; color: #fafafa; margin-right: 5px; margin-top:5px;" onclick="closeModal()">&times;</span> {% endcomment %}
+            <span class="drag-close" onclick="closeModal()"><i class="fas fa-times"></i></span>
+
 
             <div class="drag-modal-content">
+                <div class="sensor-title">
+                    <div class="sensor_name color_name">Avarege Value</div>
+                    <div id="average_data" class="latest_reading color_name">Disabled</div>
+                    <div class="sensor_name color_name"
+                        style="justify-content:flex-end; padding-right: 1vw;">
+                        <i class="fas fa-heart fa-lg"></i>
+                    </div>
+                </div>
+                <div>
+                    <div id="update-avg" class="avg-graph-update"></div>
+                </div>
                 <div id="averagechart"></div>
             </div>
-        </div>
-        
-
-
-
-
-        {% if sensor_amount <= 4 %} {% for each_sensor in sensors %} <div class="sensor_box sensor-xl">
-            <div class="sensor-title">
-                <div id="{{ each_sensor.id }}" class="sensor_name">{{ each_sensor.name }}</div>
-                <div id="{{ each_sensor.channel }}" class="latest_reading">NO DATA</div>
-                <div id="{{ each_sensor.heartbeat }}" class="sensor_name"
-                    style="justify-content:flex-end; padding-right: 1vw;">
-                    <i class="fas fa-heart fa-lg"></i>
+            {% comment %} <div id="countdown-div" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999;">
+                <div style="text-align: center;">
+                    <h4 style="color: #fafafa; margin-bottom: 5px;">The average chart will be updated in</h4>
+                    <h3 id="countdown-timer" style="color: #fafafa;">60</h3>
                 </div>
-            </div>
-            <div>
+            </div> {% endcomment %}          
+        </div>
+
+        {% if sensor_amount <= 4 %} 
+            {% for each_sensor in sensors %} 
+                <div class="sensor_box sensor-xl">
+                    <div class="sensor-title">
+                        <div id="{{ each_sensor.id }}" class="sensor_name">{{ each_sensor.name }}</div>
+                        <div id="{{ each_sensor.channel }}" class="latest_reading">NO DATA</div>
+                        <div id="{{ each_sensor.heartbeat }}" class="sensor_name"
+                            style="justify-content:flex-end; padding-right: 1vw;">
+                            <i class="fas fa-heart fa-lg"></i>
+                        </div>
+                    </div>
+                <div>
                 <div id="{{ each_sensor.update }}" class="sensor-below-title"></div>
             </div>
 

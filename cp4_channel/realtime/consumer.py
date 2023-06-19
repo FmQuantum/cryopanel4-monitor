@@ -133,10 +133,17 @@ class WSConsumer(AsyncWebsocketConsumer):
         try:
             while True:
                 data = self.serial.readline().decode().rstrip()
-                result = data.replace("00/00/00 00:00:00,", "")
+                
+                # result = data.replace("00/00/00 00:00:00,", "")
+
+                # sanitized_message = re.sub(r'[*O]', '', data)
+                # sanitized_message1 = re.sub(r'\s+', '', sanitized_message)
+
 
                 if data:
-                    print(f'data ---> {data}')
+                    # print(f'fixed ---> {sanitized_message1}')
+                    print(f'data channels ---> {data}')
+
                 else:
                     print("Waiting for data from CP4")
 
@@ -146,35 +153,48 @@ class WSConsumer(AsyncWebsocketConsumer):
 
                 result_dict = {}
 
-                data_values = result.split(',')
+                # data_values = result.split(',')
 
-                for value in data_values:
-                    match = re.match(r'^(\d+(\.\d+)?)[A-Z]?(\s[A-Z]\d)?$', value.strip())
 
-                    if match:
-                        num_value1 = match.group(1)
-                        num_O = num_value1 + 'O'
-                        num_value = float(match.group(1))
-                        alarm_code = match.group(3)
-                        channel_nums = []
-                        for i, item in enumerate(data_values):
-                            if num_O in item:
-                                print(f'num_O ---> {num_O} index ---> {i}')
-                                channel_num = i + 1
-                                channel_nums.append(channel_num)
-                                if alarm_code:
-                                    result_dict.setdefault(f'alarm_sensor_{channel_num}', alarm_code.strip())
-                            else:
-                                print('no matched item')
-                        for channel_num in channel_nums:
-                            result_dict[f'level_{channel_num}'] = num_value
-                    elif value.strip() in ['VO', 'CA', 'SW', 'FA', 'LA', 'F', 'VL']:
-                        result_dict[value.strip().lower()] = value.strip()
 
-                # print(f'Last update: {date_time} dict ---> {result_dict}')
-                print(f'Last update: {iso_string} dict ---> {result_dict}')
+
+                # pattern = r'"(ch_\d+)":\s*([^,\s]+)'
+                # converted_data = re.sub(pattern, r'"\1": "\2"', data)
+
+                # # print(converted_data)
+                # print(f'fixed_message ---> {converted_data}')
+                
+
+
+
+                # for value in data:
+                #     match = re.match(r'^(\d+(\.\d+)?)[A-Z]?(\s[A-Z]\d)?$', value.strip())
+
+                #     if match:
+                #         num_value1 = match.group(1)
+                #         num_O = num_value1 + 'O'
+                #         num_value = float(match.group(1))
+                #         alarm_code = match.group(3)
+                #         channel_nums = []
+                #         for i, item in enumerate(data):
+                #             if num_O in item:
+                #                 print(f'num_O ---> {num_O} index ---> {i}')
+                #                 channel_num = i + 1
+                #                 channel_nums.append(channel_num)
+                #                 if alarm_code:
+                #                     result_dict.setdefault(f'alarm_sensor_{channel_num}', alarm_code.strip())
+                #             else:
+                #                 print('no matched item')
+                #         for channel_num in channel_nums:
+                #             result_dict[f'level_{channel_num}'] = num_value
+                #     elif value.strip() in ['VO', 'CA', 'SW', 'FA', 'LA', 'F', 'VL']:
+                #         result_dict[value.strip().lower()] = value.strip()
+
+                # # print(f'Last update: {date_time} dict ---> {result_dict}')
+                # print(f'Last update: {iso_string} dict ---> {result_dict}')
 
                 result_dict['date_time'] = date_time
+                result_dict['data'] = data
                 # result_dict['date_time'] = iso_string
 
                 json_result_dict = json.dumps({'message': result_dict})
