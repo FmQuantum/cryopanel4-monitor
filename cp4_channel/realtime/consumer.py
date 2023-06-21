@@ -11,9 +11,10 @@ import datetime
 import pytz
 import re
 import asyncio
+import random
 
 
-
+from .models import Channel, DataLog
 # from channels.generic.websocket import WebsocketConsumer
 from channels.generic.websocket import AsyncWebsocketConsumer
 
@@ -103,106 +104,119 @@ from channels.generic.websocket import AsyncWebsocketConsumer
     # end function
 
 
+custom_data = {
+    "meta": {
+        "method": "POST",
+        "target": "QBED"
+    },
+    "headers": {
+        "Content-Type": "json",
+        "Sender": "CP4->ZSFIQ"
+    },
+    "data": {
+        "Channels": {
+            "ch_1": "",
+            "ch_2": "",
+            "ch_3": "",
+            "ch_4": ""
+        },
+        "Chan Num": 2,
+        "GPIO": "0x01010101",
+        "Accessory": "0000",
+        "Valve": "VC",
+        "Fan": "FC",
+        "Alarm": "Normal"
+    }
+}
+
+
+
 class WSConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
 
-        try:
-            self.serial = serial.Serial(
-                port='/dev/ttyUSB0',
-                baudrate=9600,
-                bytesize=serial.EIGHTBITS,
-                parity=serial.PARITY_NONE,
-                stopbits=serial.STOPBITS_ONE,
-                timeout=1
-            )
-        except SerialException as e:
-            # Handle the exception (e.g., log the error, send a message to the WebSocket, etc.)
-            await self.send(f"Error opening serial port: {str(e)}")
-            return
+        self.simulation_mode = True  # Set this flag to True for simulation mode
 
-        # Start a task to read data from the serial port and send over WebSocket
-        asyncio.create_task(self.read_data())
+        # # uncomment out when read from serial port
+        # try:
+        #     self.serial = serial.Serial(
+        #         port='/dev/ttyUSB0',
+        #         baudrate=9600,
+        #         bytesize=serial.EIGHTBITS,
+        #         parity=serial.PARITY_NONE,
+        #         stopbits=serial.STOPBITS_ONE,
+        #         timeout=1
+        #     )
+        # except SerialException as e:
+        #     # Handle the exception (e.g., log the error, send a message to the WebSocket, etc.)
+        #     await self.send(f"Error opening serial port: {str(e)}")
+        #     return
+
+        # # Start a task to read data from the serial port and send over WebSocket
+        # asyncio.create_task(self.read_data())
+
+        # Start a task to read data from send_custom_data function and send over WebSocket
+        asyncio.create_task(self.send_custom_data())
 
     async def disconnect(self, close_code):
         if hasattr(self, 'serial'):
             self.serial.close()
 
-    async def read_data(self):
-        tz = pytz.timezone('Europe/London')
-        try:
+    # async def read_data(self):
+    #     tz = pytz.timezone('Europe/London')
+    #     try:
+    #         while True:
+    #             data = self.serial.readline().decode().rstrip()
+    #             # data = custom_data
+
+
+    #             if data:
+    #                 print(f'raw msg from CP4 ---> {data}')
+    #             else:
+    #                 print("Waiting for data from CP4...")
+
+    #             now = datetime.datetime.now(tz)
+    #             iso_string = now.isoformat()
+    #             date_time = now.strftime("%m/%d/%Y %H:%M:%S")
+
+    #             result_dict = {}
+
+    #             result_dict['date_time'] = date_time
+    #             result_dict['data'] = data
+    #             # result_dict['date_time'] = iso_string
+
+    #             json_result_dict = json.dumps({'message': result_dict})
+    #             await self.send(json_result_dict)
+
+    #             await asyncio.sleep(60)
+    #     except serial.serialutil.PortNotOpenError as e:
+    #         # Handle the exception (e.g., log the error, send a message to the WebSocket, etc.)
+    #         await self.send(f"Serial port is not open: {str(e)}")
+
+    async def send_custom_data(self):
+        if self.simulation_mode:
+            tz = pytz.timezone('Europe/London')
             while True:
-                data = self.serial.readline().decode().rstrip()
-                
-                # result = data.replace("00/00/00 00:00:00,", "")
-
-                # sanitized_message = re.sub(r'[*O]', '', data)
-                # sanitized_message1 = re.sub(r'\s+', '', sanitized_message)
-
-
-                if data:
-                    # print(f'fixed ---> {sanitized_message1}')
-                    print(f'data channels ---> {data}')
-
-                else:
-                    print("Waiting for data from CP4")
+                for ch_key in custom_data["data"]["Channels"]:
+                    if random.random() < 0.8:  # 80% chance to generate a random value
+                        value = f"{round(random.uniform(0, 24), 1)} O"
+                    else:
+                        value = "0 *"
+                    custom_data["data"]["Channels"][ch_key] = value
 
                 now = datetime.datetime.now(tz)
-                iso_string = now.isoformat()
                 date_time = now.strftime("%m/%d/%Y %H:%M:%S")
 
                 result_dict = {}
 
-                # data_values = result.split(',')
-
-
-
-
-                # pattern = r'"(ch_\d+)":\s*([^,\s]+)'
-                # converted_data = re.sub(pattern, r'"\1": "\2"', data)
-
-                # # print(converted_data)
-                # print(f'fixed_message ---> {converted_data}')
-                
-
-
-
-                # for value in data:
-                #     match = re.match(r'^(\d+(\.\d+)?)[A-Z]?(\s[A-Z]\d)?$', value.strip())
-
-                #     if match:
-                #         num_value1 = match.group(1)
-                #         num_O = num_value1 + 'O'
-                #         num_value = float(match.group(1))
-                #         alarm_code = match.group(3)
-                #         channel_nums = []
-                #         for i, item in enumerate(data):
-                #             if num_O in item:
-                #                 print(f'num_O ---> {num_O} index ---> {i}')
-                #                 channel_num = i + 1
-                #                 channel_nums.append(channel_num)
-                #                 if alarm_code:
-                #                     result_dict.setdefault(f'alarm_sensor_{channel_num}', alarm_code.strip())
-                #             else:
-                #                 print('no matched item')
-                #         for channel_num in channel_nums:
-                #             result_dict[f'level_{channel_num}'] = num_value
-                #     elif value.strip() in ['VO', 'CA', 'SW', 'FA', 'LA', 'F', 'VL']:
-                #         result_dict[value.strip().lower()] = value.strip()
-
-                # # print(f'Last update: {date_time} dict ---> {result_dict}')
-                # print(f'Last update: {iso_string} dict ---> {result_dict}')
-
                 result_dict['date_time'] = date_time
-                result_dict['data'] = data
-                # result_dict['date_time'] = iso_string
+                result_dict['data'] = json.dumps(custom_data)
+                print(f'result dict --> {result_dict}')
 
                 json_result_dict = json.dumps({'message': result_dict})
                 await self.send(json_result_dict)
 
-                await asyncio.sleep(60)
-        except serial.serialutil.PortNotOpenError as e:
-            # Handle the exception (e.g., log the error, send a message to the WebSocket, etc.)
-            await self.send(f"Serial port is not open: {str(e)}")    
+                await asyncio.sleep(15)
+
 
     

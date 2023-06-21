@@ -23,8 +23,6 @@ function startCountdown(value) {
 // Call the startCountdown function when needed
 // startCountdown();
 
-var dataFromViews = "{{ data }}";
-console.log(dataFromViews);
 
 function validateOptions() {
     console.log("function validation triggered");
@@ -309,6 +307,25 @@ graphWrappers.forEach(function (wrapper, index) {
     charts.push(chart);
     channels.push([]);
 
+
+    // HANDLE ---> Unexpected value NaN parsing cx attribute. Unexpected value NaN parsing x1 attribute. Unexpected value NaN parsing x2 attribute.
+
+    // Check and handle cx attribute error
+    if (typeof chart.w.config.chart.cx !== 'number' || isNaN(chart.w.config.chart.cx)) {
+        chart.w.config.chart.cx = 0; // Set fallback value for cx
+    }
+  
+    // Check and handle x1 and x2 attribute errors
+    if (chart.w.config.annotations && Array.isArray(chart.w.config.annotations.xaxis) && chart.w.config.annotations.xaxis.length > 0) {
+        var xaxis = chart.w.config.annotations.xaxis[0];
+        if (typeof xaxis.x1 !== 'number' || isNaN(xaxis.x1)) {
+        xaxis.x1 = 0; // Set fallback value for x1
+        }
+        if (typeof xaxis.x2 !== 'number' || isNaN(xaxis.x2)) {
+        xaxis.x2 = 100; // Set fallback value for x2
+        }
+    }
+
 });
 
 
@@ -420,21 +437,113 @@ let intervalRef;
 // open connection with websocket
 var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
 socket.onmessage = function (event) {
-
+    var d = event,data
+    console.log("data from cosumer before parse -->", d);
     var data = JSON.parse(event.data);
     var parsedObject;
     var channelsObj;
     console.log("raw msg -->", data, "type -->", typeof data);
     var messageObject = data.message;
     console.log("messageObject --->", messageObject);
-
-    var jsonString = messageObject.data.replace(/^[^{\[]+/, ''); // Remove leading non-JSON characters
-    console.log("jsonString --->", jsonString, typeof jsonString);
     
-    if (jsonString.trim() === '') {
-        console.log('Raw message is empty.');
-    } else {
-        var parsedObject = JSON.parse(jsonString);
+    
+    // uncomment out below code when usign cp4 serial port read
+    // var jsonString = messageObject.data.replace(/^[^{\[]+/, ''); // Remove leading non-JSON characters
+    // console.log("jsonString --->", jsonString, typeof jsonString);
+    
+    // if (jsonString.trim() === '') {
+    //     console.log('Raw message is empty.');
+    // } else {
+    //     var parsedObject = JSON.parse(jsonString);
+    //     var msgObj = {
+    //         data: {
+    //             meta: parsedObject.meta,
+    //             headers: parsedObject.headers,
+    //             data: parsedObject.data,
+    //             date_time: messageObject.date_time
+    //         }
+    //     };
+    //     console.log("msgObj --->", msgObj);
+    // }
+
+    // if (parsedObject !== undefined) {
+    //     channelsObj = parsedObject.data.Channels;
+    //     var newChannels = {};
+
+
+    //     for (var key in channelsObj) {
+    //         if (channelsObj.hasOwnProperty(key)) {
+    //           var value = channelsObj[key];
+    //           var identifier = "";
+    //           var channelValue = "";
+          
+    //           // Check if the value contains an asterisk as the identifier
+    //           if (value.includes("*")) {
+    //             identifier = "*";
+    //             channelValue = "0";
+    //           } else {
+    //             // Extract identifier and value from the original value string
+    //             var matches = value.match(/([\d.]+)\s*([\w*]+)/);
+    //             if (matches && matches.length === 3) {
+    //               channelValue = matches[1];
+    //               identifier = matches[2];
+    //             }
+    //           }
+          
+    //           // Create a new object with identifier and value properties
+    //           newChannels[key] = {
+    //             identifier: identifier,
+    //             value: channelValue
+    //           };
+    //         }
+    //       }
+        
+    //     // Create the new object with modified Channels
+    //     var newObject = {
+    //         meta: parsedObject.meta,
+    //         headers: parsedObject.headers,
+    //         data: {
+    //             Channels: newChannels,
+    //             "Chan Num": parsedObject.data["Chan Num"],
+    //             GPIO: parsedObject.data.GPIO,
+    //             Accessory: parsedObject.data.Accessory,
+    //             Valve: parsedObject.data.Valve,
+    //             Fan: parsedObject.data.Fan,
+    //             Alarm: parsedObject.data.Alarm
+    //         },
+    //         date_time: messageObject.date_time
+    //     };
+        
+    //     console.log("newObject -->", newObject, "type -->", typeof newObject);
+    //     var jsonData = JSON.stringify(newObject);
+    //     console.log("jsonData stringfy newObject -->", jsonData,  "type -->", typeof jsonData);
+
+    //     // Create an HTTP POST request to send the data to Django
+    //     fetch('/save-data/', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: jsonData,
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         console.log(data);
+    //     })
+    //     .catch(error => {
+    //         console.error('Error:', error);
+    //     });
+        
+
+    // }
+
+
+
+
+    // use the below jsonString when testing without cp4 and no serial port comment out when using serial port read
+    var jsonString = messageObject.data;
+    console.log("jsonString --->", jsonString, typeof jsonString);
+    var parsedObject = JSON.parse(jsonString);
         var msgObj = {
             data: {
                 meta: parsedObject.meta,
@@ -444,59 +553,85 @@ socket.onmessage = function (event) {
             }
         };
         console.log("msgObj --->", msgObj);
-    }
+   
 
+
+    
 
     if (parsedObject !== undefined) {
-        channelsObj = parsedObject.data.Channels;
-        var newChannels = {};
-
-
-        for (var key in channelsObj) {
-            if (channelsObj.hasOwnProperty(key)) {
-              var value = channelsObj[key];
-              var identifier = "";
-              var channelValue = "";
-          
-              // Check if the value contains an asterisk as the identifier
-              if (value.includes("*")) {
-                identifier = "*";
-                channelValue = "0";
-              } else {
-                // Extract identifier and value from the original value string
-                var matches = value.match(/([\d.]+)\s*([\w*]+)/);
-                if (matches && matches.length === 3) {
-                  channelValue = matches[1];
-                  identifier = matches[2];
+            channelsObj = parsedObject.data.Channels;
+            var newChannels = {};
+    
+    
+            for (var key in channelsObj) {
+                if (channelsObj.hasOwnProperty(key)) {
+                    var value = channelsObj[key];
+                    var identifier = "";
+                    var channelValue = "";
+                
+                    // Check if the value contains an asterisk as the identifier
+                    if (value.includes("*")) {
+                    identifier = "*";
+                    channelValue = "0";
+                    } else {
+                    // Extract identifier and value from the original value string
+                    var matches = value.match(/([\d.]+)\s*([\w*]+)/);
+                    if (matches && matches.length === 3) {
+                        channelValue = matches[1];
+                        identifier = matches[2];
+                    }
+                    }
+                
+                    // Create a new object with identifier and value properties
+                    newChannels[key] = {
+                    identifier: identifier,
+                    value: channelValue
+                    };
                 }
-              }
-          
-              // Create a new object with identifier and value properties
-              newChannels[key] = {
-                identifier: identifier,
-                value: channelValue
-              };
-            }
-          }
-        
-        // Create the new object with modified Channels
-        var newObject = {
-            meta: parsedObject.meta,
-            headers: parsedObject.headers,
-            data: {
-                Channels: newChannels,
-                "Chan Num": parsedObject.data["Chan Num"],
-                GPIO: parsedObject.data.GPIO,
-                Accessory: parsedObject.data.Accessory,
-                Valve: parsedObject.data.Valve,
-                Fan: parsedObject.data.Fan,
-                Alarm: parsedObject.data.Alarm
-            },
-            date_time: messageObject.date_time
-        };
-        
-        console.log("newObject -->", newObject);
+                }
+            
+            // Create the new object with modified Channels
+            var newObject = {
+                meta: parsedObject.meta,
+                headers: parsedObject.headers,
+                data: {
+                    Channels: newChannels,
+                    "Chan Num": parsedObject.data["Chan Num"],
+                    GPIO: parsedObject.data.GPIO,
+                    Accessory: parsedObject.data.Accessory,
+                    Valve: parsedObject.data.Valve,
+                    Fan: parsedObject.data.Fan,
+                    Alarm: parsedObject.data.Alarm
+                },
+                date_time: messageObject.date_time
+            };
+            
+            console.log("newObject -->", newObject, "type -->", typeof newObject);
+            var jsonData = JSON.stringify(newObject);
+            console.log("jsonData stringfy newObject -->", jsonData,  "type -->", typeof jsonData);
+    
+            // Create an HTTP POST request to send the data to Django
+            fetch('/save-data/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+            
+    
         }
+     //END use the below jsonString when testing without cp4 and no serial port comment out when using serial port read
+
+
+     
     
     var value;
     var roundedValue;
@@ -645,6 +780,7 @@ socket.onmessage = function (event) {
                 var average;
                 for (var i = 0; i < AverageGraphDataY4.length; i++) {
                     average = ((AverageGraphDataY4[i] + AverageGraphDataY1[i]) / 2);
+                    average = average.toFixed(2);
                     console.log("average before push to array->", average);
                     if (averageData.length >= 20) {
                         averageData.shift(); // Remove the first element from the array
@@ -869,54 +1005,109 @@ socket.onmessage = function (event) {
 
     // Update message level and other html selectors each time we received data from websocket        
 
-    for (var i = 0; i < charts.length; i++) {
-        var channelElement = document.querySelector('#channel_' + (i + 1));
-        var heartbeatElement = document.querySelector('#heart' + (i + 1));
-        var sensorElement = document.querySelector('#sensor' + (i + 1));
+    // for (var i = 0; i < charts.length; i++) {
+    //     var channelElement = document.querySelector('#channel_' + (i + 1));
+    //     var heartbeatElement = document.querySelector('#heart' + (i + 1));
+    //     var sensorElement = document.querySelector('#sensor' + (i + 1));
 
-        var levelValue = newObject.data.Channels["ch_" + (i + 1)].value;
-        var channelIdentifier = newObject.data.Channels["ch_" + (i + 1)].identifier;
-        
-        // var levelValue = data.message['level_' + (i + 1)];
-        // console.log("line 953", newObject.data.Channels["ch_" + (i + 1)].value);
-        
-        if (levelValue !==undefined && channelIdentifier !== "*"){
-            sensorElement.innerText = levelValue + "%";
-        } else {
-            sensorElement.innerText = 'Disabled';
-        }
+    //     if ( newObject !== undefined){
+    //         var levelValue = newObject.data.Channels["ch_" + (i + 1)].value;
+    //         var channelIdentifier = newObject.data.Channels["ch_" + (i + 1)].identifier;
+    //         // var levelValue = data.message['level_' + (i + 1)];
+    //         // console.log("line 953", newObject.data.Channels["ch_" + (i + 1)].value);
+            
+    //         if (levelValue !==undefined && channelIdentifier !== "*"){
+    //             sensorElement.innerText = levelValue + "%";
+    //         } else {
+    //             sensorElement.innerText = 'Disabled';
+    //         }
 
-        if (channelIdentifier === "*"){
-            // Code for when the condition is met
-            channelElement.classList.remove('tiffany_color');
-            sensorElement.classList.add('gray_color');
-            sensorElement.classList.remove('tiffany_color');
-            heartbeatElement.classList.remove('heart_beat');
-        }
-    }
+    //         if (channelIdentifier === "*"){
+    //             // Code for when the condition is met
+    //             channelElement.classList.remove('tiffany_color');
+    //             sensorElement.classList.add('gray_color');
+    //             sensorElement.classList.remove('tiffany_color');
+    //             heartbeatElement.classList.remove('heart_beat');
+    //         }
+
+    //     } else {
+    //         console.log("Data not fetched yet --> NewObject not created!");
+    //     }
+        
+    // }
 
    
+    // let isAnySensorDefined = false;
+
+    // for (var i = 0; i < charts.length; i++) {
+    //     if ( newObject !== undefined){
+    //         var levelV = newObject.data.Channels["ch_" + (i + 1)].value;
+    //         var channelIdentifier = newObject.data.Channels["ch_" + (i + 1)].identifier;
+    //         var channelElement = document.querySelector('#channel_' + (i + 1));
+    //         var sensorElement = document.querySelector('#sensor' + (i + 1));
+    //         var heartbeatElement = document.querySelector('#heart' + (i + 1));
+    
+    //         // Check if the condition is met for any sensor
+    //         if (levelV !==undefined && channelIdentifier !== "*") {
+    //             isAnySensorDefined = true;
+    //             // Code for when the condition is met
+    //             channelElement.classList.add('tiffany_color');
+    //             sensorElement.classList.remove('gray_color');
+    //             sensorElement.classList.add('tiffany_color');
+    //             heartbeatElement.classList.add('heart_beat');
+    //             // break;
+    //         }
+    //     } else {
+    //         console.log("Data not fetched yet --> NewObject not created!");
+    //     }
+
+    // }
+
     let isAnySensorDefined = false;
-
+    
     for (var i = 0; i < charts.length; i++) {
-        var levelV = newObject.data.Channels["ch_" + (i + 1)].value;
-        var channelIdentifier = newObject.data.Channels["ch_" + (i + 1)].identifier;
         var channelElement = document.querySelector('#channel_' + (i + 1));
-        var sensorElement = document.querySelector('#sensor' + (i + 1));
         var heartbeatElement = document.querySelector('#heart' + (i + 1));
-
-        // Check if the condition is met for any sensor
-        if (levelV !==undefined && channelIdentifier !== "*") {
-            isAnySensorDefined = true;
-            // Code for when the condition is met
-            channelElement.classList.add('tiffany_color');
-            sensorElement.classList.remove('gray_color');
-            sensorElement.classList.add('tiffany_color');
-            heartbeatElement.classList.add('heart_beat');
-            // break;
+        var sensorElement = document.querySelector('#sensor' + (i + 1));
+    
+        if (newObject !== undefined) {
+            var levelValue = Number(newObject.data.Channels["ch_" + (i + 1)].value).toFixed(2);
+            var channelIdentifier = newObject.data.Channels["ch_" + (i + 1)].identifier;
+    
+            if (levelValue !== undefined && channelIdentifier !== "*") {
+                sensorElement.innerText = levelValue + "%";
+    
+                channelElement.classList.add('tiffany_color');
+                sensorElement.classList.remove('gray_color');
+                sensorElement.classList.add('tiffany_color');
+                heartbeatElement.classList.add('heart_beat');
+            } else {
+                sensorElement.innerText = 'Disabled';
+    
+                if (channelIdentifier === "*") {
+                    channelElement.classList.remove('tiffany_color');
+                    sensorElement.classList.add('gray_color');
+                    sensorElement.classList.remove('tiffany_color');
+                    heartbeatElement.classList.remove('heart_beat');
+                }
+            }
+        } else {
+            console.log("Data not fetched yet --> NewObject not created!");
         }
-
+        
+        // Check if the condition is met for any sensor
+        if (newObject !== undefined) {
+            var levelV = newObject.data.Channels["ch_" + (i + 1)].value;
+            var channelIdentifier = newObject.data.Channels["ch_" + (i + 1)].identifier;
+    
+            if (levelV !== undefined && channelIdentifier !== "*") {
+                isAnySensorDefined = true;
+            }
+        }
     }
+    
+    // You can use the "isAnySensorDefined" variable as needed outside the loop.
+    
 
      // Show/hide modal based on the condition
     if (!isAnySensorDefined) {
