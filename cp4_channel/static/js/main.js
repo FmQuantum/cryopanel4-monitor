@@ -1,6 +1,6 @@
-console.log("from main.js file hello!")
+console.log("main.js: file hello!")
 
-let secondsDiff;
+
 
 // Countdown timer logic
 var countdownElement = document.getElementById('countdown-timer');
@@ -23,9 +23,36 @@ function startCountdown(value) {
 // Call the startCountdown function when needed
 // startCountdown();
 
+// reset radiobutton
+function resetRadioButtons() {
+    const radioButtons = document.querySelectorAll('input[type="radio"]');
+    radioButtons.forEach(radioButton => {
+      radioButton.checked = false;
+    });
+}
+
+// reset options 
+function resetDropdownOptions() {
+    const sensor_dropdown_1 = document.getElementById('sensor_dropdown_1');
+    const sensor_dropdown_11 = document.getElementById('sensor_dropdown_11');
+    
+    if (sensor_dropdown_1) {
+        Array.from(sensor_dropdown_1.options).forEach((option) => {
+        option.disabled = false;
+        });
+    }
+    
+    if (sensor_dropdown_11) {
+        Array.from(sensor_dropdown_11.options).forEach((option) => {
+        option.disabled = false;
+        });
+    }
+}
+  
+
 
 function validateOptions() {
-    console.log("function validation triggered");
+    console.log("main.js: function validation triggered");
     var sensorDropdown1 = document.getElementById("sensor_dropdown_1");
     var sensorDropdown2 = document.getElementById("sensor_dropdown_11");
 
@@ -50,8 +77,7 @@ function resetSensorValues() {
 
     sensorDropdown1.value = "--";
     sensorDropdown2.value = "--";
-    graphDropDown.value = "--";
-    
+    graphDropDown.value = "--";  
 }
 
 
@@ -100,11 +126,13 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function closeModal() {
-    console.log("clicked");
+    console.log("main.js: clicked");
     modal.style.display = "none";
     resetSensorValues();
 
 }
+
+
 
 // Show/hide the modal
 function showDragModal() {
@@ -170,33 +198,50 @@ function toggleRows() {
     }       
 }
 
-function disableSelectedOptions(sourceDropdownId, targetDropdownId) {
-    var sourceDropdown = document.getElementById(sourceDropdownId);
-    var targetDropdown = document.getElementById(targetDropdownId);
-    var sourceOptions = sourceDropdown.options;
-    var targetOptions = targetDropdown.options;
+// function disableSelectedOptions(sourceDropdownId, targetDropdownId) {
+//     var sourceDropdown = document.getElementById(sourceDropdownId);
+//     var targetDropdown = document.getElementById(targetDropdownId);
+//     var sourceOptions = sourceDropdown.options;
+//     var targetOptions = targetDropdown.options;
     
-    var selectedValue = sourceDropdown.value;
+//     var selectedValue = sourceDropdown.value;
     
-    for (var i = 0; i < sourceOptions.length; i++) {
-      if (sourceOptions[i].value !== '--' && sourceOptions[i].value === targetDropdown.value) {
-        sourceOptions[i].disabled = true;
-        console.log("true");
-      } else {
-        sourceOptions[i].disabled = false;
-        console.log("false");
-      }
-    }
+//     for (var i = 0; i < sourceOptions.length; i++) {
+//       if (sourceOptions[i].value !== '--' && sourceOptions[i].value === targetDropdown.value) {
+//         sourceOptions[i].disabled = true;
+//         console.log("main.js: true");
+//       } else {
+//         sourceOptions[i].disabled = false;
+//         console.log("main.js: false");
+//       }
+//     }
     
-    for (var j = 0; j < targetOptions.length; j++) {
-      if (targetOptions[j].value !== '--' && targetOptions[j].value === selectedValue) {
-        targetOptions[j].disabled = true;
-      } else {
-        targetOptions[j].disabled = false;
-      }
-    }
+//     for (var j = 0; j < targetOptions.length; j++) {
+//       if (targetOptions[j].value !== '--' && targetOptions[j].value === selectedValue) {
+//         targetOptions[j].disabled = true;
+//       } else {
+//         targetOptions[j].disabled = false;
+//       }
+//     }
 
-}
+// }
+
+function disableSelectedOptions(dropdown1Id, dropdown2Id) {
+    var dropdown1 = document.getElementById(dropdown1Id);
+    var dropdown2 = document.getElementById(dropdown2Id);
+    
+   
+    // Disable the selected option in dropdown2
+    var selectedOptionValue = dropdown1.value;
+    for (var i = 0; i < dropdown2.options.length; i++) {
+      if (dropdown2.options[i].value === selectedOptionValue) {
+        dropdown2.options[i].disabled = true;
+        break;
+      }
+    }
+  }
+
+
 
 // change logo when hamburger menu is toggled
 const staticUrl = '/static/';
@@ -206,18 +251,20 @@ function toggleMenu() {
     const logoImage = document.getElementById('logo-quantum');
   
     if (navbar.classList.contains('active')) {
-      // Menu is active, switch to default logo
+      // Menu is not active, switch to default logo
       logoImage.src = staticUrl + 'images/icon/quantum-logo.png';
+      resetRadioButtons();
+      resetDropdownOptions()
     } else {
-      // Menu is not active, switch to yellow logo
+      // Menu is active, switch to yellow logo
       logoImage.src = staticUrl + 'images/icon/quantum-yellow-logo.png';
     }
   
     navbar.classList.toggle('active');
-    disableSelectedOptions(sourceDropdownId, targetDropdownId)
+
 }
 
-
+// Inizialize Graphs
 var graphWrappers = document.querySelectorAll('.graph-wrapper');
 var charts = [];
 var channels = [];
@@ -264,7 +311,7 @@ graphWrappers.forEach(function (wrapper, index) {
             width: 2,
         },
         title: {
-            text: 'O2',
+            text: '',
             align: 'center'
         },
         xaxis: {
@@ -298,7 +345,7 @@ graphWrappers.forEach(function (wrapper, index) {
     };
 
     var chart = new ApexCharts(wrapper, options);
-    // console.log("chart --->", chart);
+    // console.log("main.js: chart --->", chart);
     chart.render();
 
     // Assign a dynamic ID to the graph wrapper element
@@ -342,7 +389,7 @@ var AverageGraphDataY1;
 var AverageGraphDataX;
 var optionsSelected = false;
 
-// Average Graph
+//// Inizialize Average Graph
 const ctx = document.getElementById('averagechart');
 
     var averageOptions = { 
@@ -391,7 +438,7 @@ const ctx = document.getElementById('averagechart');
             width: 2,
         },
         title: {
-            text: 'O2',
+            text: '',
             align: 'center'
         },
         xaxis: {
@@ -426,717 +473,6 @@ const ctx = document.getElementById('averagechart');
 
 var myAverageChart = new ApexCharts(ctx, averageOptions);
 myAverageChart.render();
-
-
-
-
-
-// Define a variable to store the interval reference
-let intervalRef;
-
-// open connection with websocket
-var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
-socket.onmessage = function (event) {
-    var d = event,data
-    console.log("data from cosumer before parse -->", d);
-    var data = JSON.parse(event.data);
-    var parsedObject;
-    var channelsObj;
-    console.log("raw msg -->", data, "type -->", typeof data);
-    var messageObject = data.message;
-    console.log("messageObject --->", messageObject);
-    
-    
-    // uncomment out below code when usign cp4 serial port read
-    // var jsonString = messageObject.data.replace(/^[^{\[]+/, ''); // Remove leading non-JSON characters
-    // console.log("jsonString --->", jsonString, typeof jsonString);
-    
-    // if (jsonString.trim() === '') {
-    //     console.log('Raw message is empty.');
-    // } else {
-    //     var parsedObject = JSON.parse(jsonString);
-    //     var msgObj = {
-    //         data: {
-    //             meta: parsedObject.meta,
-    //             headers: parsedObject.headers,
-    //             data: parsedObject.data,
-    //             date_time: messageObject.date_time
-    //         }
-    //     };
-    //     console.log("msgObj --->", msgObj);
-    // }
-
-    // if (parsedObject !== undefined) {
-    //     channelsObj = parsedObject.data.Channels;
-    //     var newChannels = {};
-
-
-    //     for (var key in channelsObj) {
-    //         if (channelsObj.hasOwnProperty(key)) {
-    //           var value = channelsObj[key];
-    //           var identifier = "";
-    //           var channelValue = "";
-          
-    //           // Check if the value contains an asterisk as the identifier
-    //           if (value.includes("*")) {
-    //             identifier = "*";
-    //             channelValue = "0";
-    //           } else {
-    //             // Extract identifier and value from the original value string
-    //             var matches = value.match(/([\d.]+)\s*([\w*]+)/);
-    //             if (matches && matches.length === 3) {
-    //               channelValue = matches[1];
-    //               identifier = matches[2];
-    //             }
-    //           }
-          
-    //           // Create a new object with identifier and value properties
-    //           newChannels[key] = {
-    //             identifier: identifier,
-    //             value: channelValue
-    //           };
-    //         }
-    //       }
-        
-    //     // Create the new object with modified Channels
-    //     var newObject = {
-    //         meta: parsedObject.meta,
-    //         headers: parsedObject.headers,
-    //         data: {
-    //             Channels: newChannels,
-    //             "Chan Num": parsedObject.data["Chan Num"],
-    //             GPIO: parsedObject.data.GPIO,
-    //             Accessory: parsedObject.data.Accessory,
-    //             Valve: parsedObject.data.Valve,
-    //             Fan: parsedObject.data.Fan,
-    //             Alarm: parsedObject.data.Alarm
-    //         },
-    //         date_time: messageObject.date_time
-    //     };
-        
-    //     console.log("newObject -->", newObject, "type -->", typeof newObject);
-    //     var jsonData = JSON.stringify(newObject);
-    //     console.log("jsonData stringfy newObject -->", jsonData,  "type -->", typeof jsonData);
-
-    //     // Create an HTTP POST request to send the data to Django
-    //     fetch('/save-data/', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: jsonData,
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         console.log(data);
-    //     })
-    //     .catch(error => {
-    //         console.error('Error:', error);
-    //     });
-        
-
-    // }
-
-
-
-
-    // use the below jsonString when testing without cp4 and no serial port comment out when using serial port read
-    var jsonString = messageObject.data;
-    console.log("jsonString --->", jsonString, typeof jsonString);
-    var parsedObject = JSON.parse(jsonString);
-        var msgObj = {
-            data: {
-                meta: parsedObject.meta,
-                headers: parsedObject.headers,
-                data: parsedObject.data,
-                date_time: messageObject.date_time
-            }
-        };
-        console.log("msgObj --->", msgObj);
-   
-
-
-    
-
-    if (parsedObject !== undefined) {
-            channelsObj = parsedObject.data.Channels;
-            var newChannels = {};
-    
-    
-            for (var key in channelsObj) {
-                if (channelsObj.hasOwnProperty(key)) {
-                    var value = channelsObj[key];
-                    var identifier = "";
-                    var channelValue = "";
-                
-                    // Check if the value contains an asterisk as the identifier
-                    if (value.includes("*")) {
-                    identifier = "*";
-                    channelValue = "0";
-                    } else {
-                    // Extract identifier and value from the original value string
-                    var matches = value.match(/([\d.]+)\s*([\w*]+)/);
-                    if (matches && matches.length === 3) {
-                        channelValue = matches[1];
-                        identifier = matches[2];
-                    }
-                    }
-                
-                    // Create a new object with identifier and value properties
-                    newChannels[key] = {
-                    identifier: identifier,
-                    value: channelValue
-                    };
-                }
-                }
-            
-            // Create the new object with modified Channels
-            var newObject = {
-                meta: parsedObject.meta,
-                headers: parsedObject.headers,
-                data: {
-                    Channels: newChannels,
-                    "Chan Num": parsedObject.data["Chan Num"],
-                    GPIO: parsedObject.data.GPIO,
-                    Accessory: parsedObject.data.Accessory,
-                    Valve: parsedObject.data.Valve,
-                    Fan: parsedObject.data.Fan,
-                    Alarm: parsedObject.data.Alarm
-                },
-                date_time: messageObject.date_time
-            };
-            
-            console.log("newObject -->", newObject, "type -->", typeof newObject);
-            var jsonData = JSON.stringify(newObject);
-            console.log("jsonData stringfy newObject -->", jsonData,  "type -->", typeof jsonData);
-    
-            // Create an HTTP POST request to send the data to Django
-            fetch('/save-data/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: jsonData,
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-            
-    
-        }
-     //END use the below jsonString when testing without cp4 and no serial port comment out when using serial port read
-
-
-     
-    
-    var value;
-    var roundedValue;
-    // startCountdown(secondsDiff);
-    for (var i = 0; i < channels.length; i++) {
-        if (newObject !== undefined) {
-                console.log("channels from new raw msg", data.message.data);
-                console.log("channels length -->", channels.length);
-                console.log("i in channels -->", i);
-                console.log("Channels in new obj --->", newObject.data.Channels)
-                value = newObject.data.Channels['ch_' + (i + 1)]["value"];
-                console.log("value ->", value, "type ->", typeof value);
-                roundedValue = Number(value);
-                roundedValue = roundedValue.toFixed(2);
-                channels[i].push([data.message.date_time, roundedValue]);
-                if (channels[i].length > 20) {
-                    channels[i].shift(); // Remove the first element
-                }
-        } else {
-                channels[i].push([data.message.date_time, "0"]); // initialize the channels array         
-        }      
-    }
-    console.log("Channels initialized with default value '0' and date-time from consumer.py -->",  channels);
-
-    
-    var color;
-    var lastValue;
-    for (var i = 0; i < charts.length; i++) {
-        var newGraphDataY = channels[i].map(function (data) {
-            // dataStr = data[1].toFixed(2);
-            dataStr = data[1];
-
-            console.log("dataStr ->", dataStr);
-            // return data[1] !== undefined ? data[1] : 0;
-            return dataStr
-        });
-        console.log("newGraphDataY --->", "channel:", i + 1, newGraphDataY, "type ->", typeof newGraphDataY);
-        
-        var newGraphDataX = channels[i].map(function (data) {
-            return new Date(data[0]).getTime(); // Convert date-time string to timestamp
-        });
-        console.log("newGraphDataX --->","channel:", i + 1, newGraphDataX);
-
-        color = '#00FEFC'; // Default color
-        if ( channels[i][(channels[i].length - 1)] !==undefined){
-            lastValue = channels[i][channels[i].length - 1][1];
-            console.log("lastValue for each channels array -->", lastValue);
-        }
-        lastValue = Number(lastValue);
-        
-
-        if (lastValue <= levelTresholdLighRed && lastValue > levelTresholdRed) {
-            color = '#FF758D'; // Change the color if the value meets the threshold condition
-        } else if (lastValue <= levelTresholdRed) {
-            color = '#FF0000'; // Change the color if the value meets the threshold condition
-        } 
-        else {
-            color = '#00fefc'
-        }
-
-        // add markers and custom marger for datapoint below 19.5%
-        var markerFillColor = '#00FEFC'; // Default marker color
-        if (lastValue < 19.5) {
-            markerFillColor = '#FF0000'; // Change the marker color for data points below 19.5%
-        }
-
-
-        
-
-        var chart = charts[i];
-        chart.updateOptions({
-            series: [{
-                name: "Values1",
-                data: newGraphDataY
-            }],
-            xaxis: {
-                categories: newGraphDataX
-            },
-            colors: [color], // Set the color dynamically
-            // annotations: {
-            //     points: newGraphDataY.map(function (y, index) {
-            //         var markerColor = y < 19.5 ? '#FF0000' : markerFillColor;
-            //         return {
-            //             x: newGraphDataX[index],
-            //             y: y,
-            //             marker: {
-            //                 size: 4,
-            //                 fillColor: markerColor,
-            //                 strokeColor: '#FFFFFF',
-            //                 strokeWidth: 2,
-            //             },
-            //         };
-            //     }),
-            //     position: 'front',
-            // },
-
-        });
-
-
-    }
-    console.log("channels --->", channels);
-    console.log("charts --->", charts);
-
-
-
-//    // Update the AverageChart
-
-    var averageData = [];
-    console.log("avgData->", averageData);
-    
-    
-    var AverageGraphDataY4;
-    var AverageGraphDataY1;
-
-    console.log("averageData array ->", averageData);
-     
-    function updateAverageDataValue(){
-        var averageValue = averageData[averageData.length - 1];
-
-        if (typeof averageValue === 'undefined') {
-            averageValue = 0;
-            console.log("avg value from if ->", averageValue);
-            document.getElementById("average_data").innerHTML = averageValue + "%";
-        } else {
-            console.log("avg value from else ->", averageValue);
-            document.getElementById("average_data").innerHTML = averageValue + "%";
-        }
-        
-    }
-    
-    function updateGraph() {
-        // console.log("updateGrapg function triggered");
-
-        if (channels[selectedOption1] && channels[selectedOption2]) {
-            AverageGraphDataY4 = channels[selectedOption1].map(function (data) {
-              return data[1] !== undefined ? Number(data[1]) : 0;
-            });
-            AverageGraphDataY1 = channels[selectedOption2].map(function (data) {
-              return data[1] !== undefined ? Number(data[1]) : 0;
-            });        
-            AverageGraphDataX = channels[selectedOption1].map(function (data) {
-              return new Date(data[0]).getTime(); // Convert date-time string to timestamp
-            });
-
-            if (AverageGraphDataY4 && AverageGraphDataY1 && AverageGraphDataY4.length === AverageGraphDataY1.length) {
-                var average;
-                for (var i = 0; i < AverageGraphDataY4.length; i++) {
-                    average = ((AverageGraphDataY4[i] + AverageGraphDataY1[i]) / 2);
-                    average = average.toFixed(2);
-                    console.log("average before push to array->", average);
-                    if (averageData.length >= 20) {
-                        averageData.shift(); // Remove the first element from the array
-                    }
-                    averageData.push(average);
-                }
-                
-            } else {
-            // Handle the case when the arrays are undefined or have different lengths
-            // Display an error message or perform alternative logic
-            }
-
-            var color = '#00FEFC'; // Default color for line 1
-            var color2 = '#00FEFC'; // Default color for line 2
-            var color3; // Default color for line 3
-            var lastValue = channels[selectedOption1][channels[selectedOption1].length - 1][1];
-            var lastValue2 = channels[selectedOption2][channels[selectedOption2].length - 1][1];
-            var lastValue3 = averageData[averageData.length - 1];
-
-            // LINE 1 color determination
-            if (lastValue <= levelTresholdLighRed) {
-                if (lastValue > levelTresholdRed){
-                    color = '#FF758D'; //Pinkish Change the color if the value meets the threshold condition
-                } else {
-                    color = '#FF0000'; //Red Change the color if the value meets the threshold condition
-                }
-            } else {
-                color = '#00FEFC'; // cyan
-            }
-
-            // LINE 2 color determination
-            if (lastValue2 <= levelTresholdLighRed) {
-                if (lastValue2 > levelTresholdRed){
-                    color2 = '#FF758D'; //Pinkish Change the color if the value meets the threshold condition
-                } else {
-                    color2 = '#FF0000'; //Red Change the color if the value meets the threshold condition
-                }
-            } else {
-                color2 = '#00FEFC'; // cyan
-            }
-
-            // LINE 3 color determination
-            if (lastValue3) {
-                color3 = '#800080' // purple
-            }
-
-            // Update the chart options and data
-
-            var Avechart = myAverageChart;
-            if (AverageGraphDataY4 && AverageGraphDataY1 && averageData) {
-                Avechart.updateOptions({
-                    series: [
-                        {
-                            name: "Sensor " + (selectedOption1 + 1),
-                            data: AverageGraphDataY4,
-                            color: color // Set the color for line 2
-                        },
-                        {
-                            name: "Sensor " + (selectedOption2 + 1),
-                            data: AverageGraphDataY1,
-                            color: color2 // Set the color for line 2
-                        },
-                        {
-                            name: "Average",
-                            data: averageData,
-                            color: color3 // Set the color for line 2
-                        }
-                    ],
-                    xaxis: {
-                        categories: AverageGraphDataX
-                    },
-                    colors: [color, color2, color3], // Set the color dynamically
-                    
-                    // annotations: {
-                    //     points: AverageGraphDataY4.map(function (y, index) {
-                    //         var markerColor = y < 19.5 ? '#FF0000' : color;
-                    //         // var markerSize = y >= 19.5 ? 4 : 0; // Set marker size to 0 when line is disabled
-                    //         return {
-                    //             x: AverageGraphDataX[index],
-                    //             y: y,
-                    //             marker: {
-                    //                 // size: markerSize,
-                    //                 size: 4,
-                    //                 fillColor: markerColor,
-                    //                 strokeColor: '#FFFFFF',
-                    //                 strokeWidth: 2,
-                    //             },
-                    //         };
-                    //     }).concat(AverageGraphDataY1.map(function (y, index) {
-                    //         var markerColor = y < 19.5 ? '#FF0000' : color2;
-                    //         // var markerSize = y >= 19.5 ? 4 : 0; // Set marker size to 0 when line is disabled
-                    //         return {
-                    //             x: AverageGraphDataX[index],
-                    //             y: y,
-                    //             marker: {
-                    //                 size: 4,
-                    //                 fillColor: markerColor,
-                    //                 strokeColor: '#FFFFFF',
-                    //                 strokeWidth: 2,
-                    //             },
-                    //         };
-                    //     })).concat(averageData.map(function (y, index) {
-                    //         var markerColor = y < 19.5 ? '#FF0000' : color3;
-                    //         // var markerSize = y >= 19.5 ? 4 : 0; // Set marker size to 0 when line is disabled
-                    //         return {
-                    //             x: AverageGraphDataX[index],
-                    //             y: y,
-                    //             marker: {
-                    //                 size: 4,
-                    //                 fillColor: markerColor,
-                    //                 strokeColor: '#FFFFFF',
-                    //                 strokeWidth: 2,
-                    //             },
-                    //         };
-                    //     })),
-                    //     position: 'front',
-                    // }
-                });
-            }
-
-            
-        } else {
-        // Handle the case when the selected channels are not available
-        // Display an error message or perform alternative logic
-        }
-    }
-
-    // Add event listener to dropdown1
-    dropdown1.addEventListener('change', function() {
-        selectedOption1 = Number(dropdown1.options[dropdown1.selectedIndex].getAttribute('id'));
-        optionsSelected = true;
-        updateGraph();
-        updateAverageDataValue();
-        console.log("selectedOption1:", selectedOption1);
-        console.log("type selectedOption1:", typeof selectedOption1);
-    });
-
-    
-    // Add event listener to dropdown11
-    dropdown11.addEventListener('change', function() {
-        selectedOption2 = Number(dropdown11.options[dropdown11.selectedIndex].getAttribute('id'));
-        optionsSelected = true;
-        updateGraph();
-        updateAverageDataValue();
-        console.log("selectedOption2:", selectedOption2);
-        console.log("type selectedOption2:", typeof selectedOption2);
-    });
-
-
-    if (selectedOption1 !== undefined && selectedOption2 !==undefined){
-        console.log("options selected");
-        optionsSelected = true;
-        updateGraph(); 
-        updateAverageDataValue();
-    }
-    
-    
-    // Get the current timestamp
-    const currentTime = Date.now();
-
-
-    // Function to check and update the innerHTML of the element
-
-    function updateInnerHTML(elementId) {
-        const element = document.querySelector(`#${elementId}`);
-        if (element && element.innerHTML === '') {
-            const dateTime = data.message.date_time; // Get the date and time string from data.message.date_time
-            const timestamp = new Date(dateTime).getTime(); // Convert the date and time string to a timestamp
-            const secondsDiff = Math.floor((currentTime - timestamp) / 1000); // Calculate the difference in seconds
-            const timeText = (secondsDiff >= 0) ? `Latest update: ${secondsDiff} sec ago` : 'Future update'; // Format the time text
-
-            element.innerText = timeText; // Set the time text as the inner text of the element
-        }
-    }
-
-    const update_time_avg = 'update-avg';
-    updateInnerHTML(update_time_avg);
-
-    // Iterate over the update elements and update their inner text
-    for (let i = 0; i < channels.length; i++) {
-        const elementId = `update${i + 1}`;
-        updateInnerHTML(elementId);
-    }
-
-    // Clear the previous interval if it exists
-    if (intervalRef) {
-        clearInterval(intervalRef);
-    }
-
-
-    function updateTimeText(dateTime, currentTime) {
-        const timestamp = new Date(dateTime).getTime(); // Convert the date and time string to a timestamp
-        secondsDiff = Math.floor((currentTime - timestamp) / 1000); // Calculate the difference in seconds
-        return (secondsDiff >= 0) ? `Latest update: ${secondsDiff} sec ago` : 'Future update'; // Format the time text
-    }
-    
-    intervalRef = setInterval(() => {
-        const currentTime = Date.now();
-        const avg_update_time = document.getElementById('update-avg');
-        
-        for (let i = 0; i < channels.length; i++) {
-            const elementId = `update${i + 1}`;
-            const element = document.querySelector(`#${elementId}`);
-            
-            if (element) {
-                const dateTime = data.message.date_time; // Get the date and time string from data.message.date_time
-                const timeText = updateTimeText(dateTime, currentTime); // Calculate and format the time text
-    
-                element.innerText = timeText; // Set the time text as the inner text of the element
-            }
-        }
-        
-        if (avg_update_time) {
-            const dateTime = data.message.date_time; // Get the date and time string from data.message.date_time
-            const timeText = updateTimeText(dateTime, currentTime); // Calculate and format the time text
-    
-            avg_update_time.innerText = timeText; // Set the time text as the inner text of the element
-        }
-    }, 1000);
-    //Update every second
-    
-
-    // Update message level and other html selectors each time we received data from websocket        
-
-    // for (var i = 0; i < charts.length; i++) {
-    //     var channelElement = document.querySelector('#channel_' + (i + 1));
-    //     var heartbeatElement = document.querySelector('#heart' + (i + 1));
-    //     var sensorElement = document.querySelector('#sensor' + (i + 1));
-
-    //     if ( newObject !== undefined){
-    //         var levelValue = newObject.data.Channels["ch_" + (i + 1)].value;
-    //         var channelIdentifier = newObject.data.Channels["ch_" + (i + 1)].identifier;
-    //         // var levelValue = data.message['level_' + (i + 1)];
-    //         // console.log("line 953", newObject.data.Channels["ch_" + (i + 1)].value);
-            
-    //         if (levelValue !==undefined && channelIdentifier !== "*"){
-    //             sensorElement.innerText = levelValue + "%";
-    //         } else {
-    //             sensorElement.innerText = 'Disabled';
-    //         }
-
-    //         if (channelIdentifier === "*"){
-    //             // Code for when the condition is met
-    //             channelElement.classList.remove('tiffany_color');
-    //             sensorElement.classList.add('gray_color');
-    //             sensorElement.classList.remove('tiffany_color');
-    //             heartbeatElement.classList.remove('heart_beat');
-    //         }
-
-    //     } else {
-    //         console.log("Data not fetched yet --> NewObject not created!");
-    //     }
-        
-    // }
-
-   
-    // let isAnySensorDefined = false;
-
-    // for (var i = 0; i < charts.length; i++) {
-    //     if ( newObject !== undefined){
-    //         var levelV = newObject.data.Channels["ch_" + (i + 1)].value;
-    //         var channelIdentifier = newObject.data.Channels["ch_" + (i + 1)].identifier;
-    //         var channelElement = document.querySelector('#channel_' + (i + 1));
-    //         var sensorElement = document.querySelector('#sensor' + (i + 1));
-    //         var heartbeatElement = document.querySelector('#heart' + (i + 1));
-    
-    //         // Check if the condition is met for any sensor
-    //         if (levelV !==undefined && channelIdentifier !== "*") {
-    //             isAnySensorDefined = true;
-    //             // Code for when the condition is met
-    //             channelElement.classList.add('tiffany_color');
-    //             sensorElement.classList.remove('gray_color');
-    //             sensorElement.classList.add('tiffany_color');
-    //             heartbeatElement.classList.add('heart_beat');
-    //             // break;
-    //         }
-    //     } else {
-    //         console.log("Data not fetched yet --> NewObject not created!");
-    //     }
-
-    // }
-
-    let isAnySensorDefined = false;
-    
-    for (var i = 0; i < charts.length; i++) {
-        var channelElement = document.querySelector('#channel_' + (i + 1));
-        var heartbeatElement = document.querySelector('#heart' + (i + 1));
-        var sensorElement = document.querySelector('#sensor' + (i + 1));
-    
-        if (newObject !== undefined) {
-            var levelValue = Number(newObject.data.Channels["ch_" + (i + 1)].value).toFixed(2);
-            var channelIdentifier = newObject.data.Channels["ch_" + (i + 1)].identifier;
-    
-            if (levelValue !== undefined && channelIdentifier !== "*") {
-                sensorElement.innerText = levelValue + "%";
-    
-                channelElement.classList.add('tiffany_color');
-                sensorElement.classList.remove('gray_color');
-                sensorElement.classList.add('tiffany_color');
-                heartbeatElement.classList.add('heart_beat');
-            } else {
-                sensorElement.innerText = 'Disabled';
-    
-                if (channelIdentifier === "*") {
-                    channelElement.classList.remove('tiffany_color');
-                    sensorElement.classList.add('gray_color');
-                    sensorElement.classList.remove('tiffany_color');
-                    heartbeatElement.classList.remove('heart_beat');
-                }
-            }
-        } else {
-            console.log("Data not fetched yet --> NewObject not created!");
-        }
-        
-        // Check if the condition is met for any sensor
-        if (newObject !== undefined) {
-            var levelV = newObject.data.Channels["ch_" + (i + 1)].value;
-            var channelIdentifier = newObject.data.Channels["ch_" + (i + 1)].identifier;
-    
-            if (levelV !== undefined && channelIdentifier !== "*") {
-                isAnySensorDefined = true;
-            }
-        }
-    }
-    
-    // You can use the "isAnySensorDefined" variable as needed outside the loop.
-    
-
-     // Show/hide modal based on the condition
-    if (!isAnySensorDefined) {
-        showModalAlert();
-    } else {
-        hideModalAlert();
-    }
-
-    // Show modal alert
-    function showModalAlert() {
-        // Only show the modal if it is not already visible
-        if (!isModalVisible) {
-        const modalElement = document.getElementById('modalAlert');
-        modalElement.style.display = 'flex';
-        isModalVisible = true;
-        }
-    }
-
-    // Hide modal alert
-    function hideModalAlert() {
-        // Only hide the modal if it is currently visible
-        if (isModalVisible) {
-        const modalElement = document.getElementById('modalAlert');
-        modalElement.style.display = 'none';
-        isModalVisible = false;
-        }
-    }
-
-}
 
 
 const animationKeyframes = `
@@ -1187,7 +523,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCountdown();
       } catch (error) {
         // Handle the error as an exception
-        console.error('The modal has been removed because data has been retrived:', error);
+        console.error('main.js: The modal has been removed because data has been retrived:', error);
       }
 
     
@@ -1228,3 +564,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+

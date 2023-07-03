@@ -14,7 +14,7 @@ import asyncio
 import random
 
 
-from .models import Channel, DataLog
+# from .models import ChannelLogStatus, DataLog
 # from channels.generic.websocket import WebsocketConsumer
 from channels.generic.websocket import AsyncWebsocketConsumer
 
@@ -103,7 +103,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
     # end function
 
-
+# data structure from CP4 need for testing for serial port simulation
 custom_data = {
     "meta": {
         "method": "POST",
@@ -156,18 +156,20 @@ class WSConsumer(AsyncWebsocketConsumer):
         # asyncio.create_task(self.read_data())
 
         # Start a task to read data from send_custom_data function and send over WebSocket
+        # Comment out when read from serial port
         asyncio.create_task(self.send_custom_data())
 
     async def disconnect(self, close_code):
         if hasattr(self, 'serial'):
             self.serial.close()
 
+    
+    ## read_data fucntion when use real serial port/ uncomment out when read from serial
     # async def read_data(self):
     #     tz = pytz.timezone('Europe/London')
     #     try:
     #         while True:
     #             data = self.serial.readline().decode().rstrip()
-    #             # data = custom_data
 
 
     #             if data:
@@ -193,16 +195,29 @@ class WSConsumer(AsyncWebsocketConsumer):
     #         # Handle the exception (e.g., log the error, send a message to the WebSocket, etc.)
     #         await self.send(f"Serial port is not open: {str(e)}")
 
+    # #send_custom_data function for testing when simulate serial port read / Comment out when read from serial port 
     async def send_custom_data(self):
         if self.simulation_mode:
             tz = pytz.timezone('Europe/London')
             while True:
-                for ch_key in custom_data["data"]["Channels"]:
+                numbers_array = []
+                optionsIdentifier = ["O", "CO", "LN", "H", "Ar"]
+                for ch_key in custom_data["data"]["Channels"]:         
                     if random.random() < 0.8:  # 80% chance to generate a random value
-                        value = f"{round(random.uniform(0, 24), 1)} O"
+                        number = round(random.uniform(0, 24), 1)
+                        numbers_array.append(number)
+                        value = f"{number} {random.choice(optionsIdentifier)}"
+                        # value = f"{number} O"
                     else:
                         value = "0 *"
                     custom_data["data"]["Channels"][ch_key] = value
+                    print(f'from consumer.py numbers_array --> {numbers_array}')
+                
+                # Update Alarm value based on numbers_array
+                if any(number >= 20.8 or number <= 19.5 for number in numbers_array):
+                    custom_data["data"]["Alarm"] = "Critical"
+                else:
+                    custom_data["data"]["Alarm"] = "Normal"
 
                 now = datetime.datetime.now(tz)
                 date_time = now.strftime("%m/%d/%Y %H:%M:%S")

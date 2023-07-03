@@ -1,7 +1,8 @@
 import traceback
+from pytz import timezone as pytz_timezone
 from django.shortcuts import render
 from django.http import JsonResponse
-from .models import Channel, DataLog, AlarmLog
+from .models import ChannelLogStatus, DataLog, AlarmLog, ConnectionsLostLog
 import json
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
@@ -47,6 +48,15 @@ previous_channels_data = {}
 last_save_time = None
 last_save_time_alarm = None
 
+
+# convert time to bst
+def convert_to_bst_time(bst_time):
+    bst_tz = pytz_timezone('Europe/London')
+    bst_time = bst_time.astimezone(bst_tz)
+    return bst_time.strftime('%Y-%m-%d %H:%M:%S')
+
+
+# CSRF decorator protection is important for forms and other sensitive data submission methods where the server needs to ensure that the request is coming from a legitimate source.
 @csrf_exempt
 def save_data(request):
     global previous_channels_data
@@ -61,6 +71,7 @@ def save_data(request):
             channels_dict = data['data']
             print(f'from views.py channel dict --> {channels_dict}')
             alarm_status = data['data']['Alarm']
+            channels_status = data['data']['Channels']
             data_time_msg = data['date_time']
             print(f'views.py from save_data Channels_data --> {channels_data}')
             print(f'views.py from save_data {data_time_msg} alarm_status --> {alarm_status}')
@@ -69,9 +80,20 @@ def save_data(request):
 
             if channels_data is None:
                 return JsonResponse({'status': 'error', 'message': 'No channel data provided'})
+            
+            alarm_sensors = []
+            for ch_key, ch_value in data['data']['Channels'].items():
+                value = float(ch_value['value'])
+                if value != 0 and (value >= 20.8 or value <= 19.5):
+                    alarm_sensors.append(ch_key)
+            # print(f'from vies.py alarm_keys_array --> {alarm_sensors}')
 
+            # Combine alarm_status and alarm_array
+            data_alarm = {'alarm_status': alarm_status, 'sensors': alarm_sensors}
+
+            channels_log = ChannelLogStatus(created=aware_date_time, data=channels_status)
             data_log = DataLog(created=aware_date_time, data=channels_data)
-            alarm_log = AlarmLog(created=aware_date_time, data=alarm_status)
+            alarm_log = AlarmLog(created=aware_date_time, data=data_alarm)
 
             current_time = datetime.now()
             print(current_time)
@@ -79,6 +101,7 @@ def save_data(request):
             if channels_dict != previous_channels_data:
                 previous_channels_data = channels_dict
                 last_save_time = current_time
+                channels_log.save()
                 data_log.save()
                 print("views.py Data will be saved bacause we had a change in status")
             else:
@@ -109,11 +132,36 @@ def save_data(request):
 
             
 
-            return JsonResponse({'status': 'success'})
+            return JsonResponse({'views.py: status --> save_data': 'success'})
         except (json.JSONDecodeError, KeyError) as e:
-            return JsonResponse({'status': 'error', 'message': str(e)})
+            return JsonResponse({'views.py: status --> save_data': 'error', 'message': str(e)})
     else:
-        return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+        return JsonResponse({'views.py: status --> save_data': 'error', 'message': 'Invalid request method'})
+
+
+@csrf_exempt
+def save_connection_lost(request):
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            timestamp = data['timestamp']
+            print(f'views.py from save connections lost --> {timestamp} type --> {type(timestamp)}')
+            return JsonResponse({'views.py: status --> save_connection_lost': 'success'})
+        except (json.JSONDecodeError, KeyError) as e:
+            return JsonResponse({'views.py: status --> save_connection_lost': 'error', 'message': str(e)})
+    else:
+        return JsonResponse({'views.py: status --> save_connection_lost': 'error', 'message': 'Invalid request method'})
+
+
+# retrive latest channel logs from database get method used in socket.js to pass from views.py to socket.js we define url in urls.py
+def get_channel_log_data(request):
+    last_log = ChannelLogStatus.objects.order_by('-created').first()
+    
+    bst = convert_to_bst_time(last_log.created)
+    
+    channel_log_data = {'created': bst, 'data': last_log.data}
+    return JsonResponse(channel_log_data)
 
 
 

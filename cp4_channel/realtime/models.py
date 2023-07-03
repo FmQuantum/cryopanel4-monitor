@@ -16,13 +16,13 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 #     value = models.DecimalField(max_digits=5, decimal_places=2)
 
 
-class Channel(models.Model):
-    name = models.CharField(max_length=256, default="sensor_")
-    channel = models.IntegerField(validators=[
-        MaxValueValidator(255),
-        MinValueValidator(0),
-    ])
-    is_active = models.BooleanField(default=True)
+class ChannelLogStatus(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    data = models.JSONField()
+
+    class Meta:
+        verbose_name = "Channel Logs Status"  # Specify the custom verbose name for the model
+        verbose_name_plural = "Channel Logs Status"  # Specify the custom verbose plural name for the model
 
 
 class DataLog(models.Model):
@@ -30,5 +30,9 @@ class DataLog(models.Model):
     data = models.JSONField()
 
 class AlarmLog(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    data = models.JSONField()
+
+class ConnectionsLostLog(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     data = models.JSONField()

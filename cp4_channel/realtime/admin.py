@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils import timezone
 from django.utils.html import format_html
 from pytz import timezone as pytz_timezone
-from .models import Channel, DataLog, AlarmLog
+from .models import ChannelLogStatus, DataLog, AlarmLog, ConnectionsLostLog
 from datetime import datetime
 import pytz
 
@@ -15,9 +15,18 @@ import pytz
 #     actions = []
 
 
-@admin.register(Channel)
+@admin.register(ChannelLogStatus)
 class ChannelAdmin(admin.ModelAdmin):
-    list_display = ('name', 'channel', 'is_active')
+    list_display = ('formatted_created',)
+    # actions = ['delete_selected_alarm_logs']
+
+    def formatted_created(self, obj):
+        return convert_to_bst_time(obj)
+
+    formatted_created.short_description = 'Created'
+
+    def delete_selected_data_logs(modeladmin, queryset):
+        queryset.delete()
 
 def convert_to_bst_time(obj):
     utc_time = obj.created
@@ -53,22 +62,18 @@ class AlarmLogAdmin(admin.ModelAdmin):
     def delete_selected_data_logs(modeladmin, queryset):
         queryset.delete()
 
-# @admin.register(AlarmLog)
-# class AlarmLogAdmin(admin.ModelAdmin):
-#     list_display = ('formatted_created',)
-#     list_display_links = None
 
-#     def formatted_created(self, obj):
-#         bst_time = convert_to_bst_time(obj)
-#         alarm_value = obj.data.get('Alarm')
-#         print(f'from admin.py alarm value ---> {alarm_value}')
-#         if alarm_value  != 'Normal':
-#             return format_html('<span style="color: red;">{}</span>', bst_time)
-#         return bst_time
+@admin.register(ConnectionsLostLog)
+class ConnectionsLostLogAdmin(admin.ModelAdmin):
+    list_display = ('formatted_created',)
+    # actions = ['delete_selected_alarm_logs']
 
-#     formatted_created.short_description = 'Created'
+    def formatted_created(self, obj):
+        return convert_to_bst_time(obj)
 
-#     def delete_selected_data_logs(modeladmin, queryset):
-#         queryset.delete()
+    formatted_created.short_description = 'Created'
+
+    def delete_selected_data_logs(modeladmin, queryset):
+        queryset.delete()
 
 

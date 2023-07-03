@@ -26,6 +26,25 @@
     <div class="menu-content">
         <div class="container_options">
             <h3 class="average_graph">average graph options</h3>
+
+            <h4>Choose the gas you want to monitor</h4>
+            <div style="margin-bottom: 20px;"> 
+                <input type="radio" name="radioGroup" value="O" id="o2" onchange="toggleSecondDivO2()">
+                <label for="option1">O2</label>
+
+                <input type="radio" name="radioGroup" value="CO" id="co2" onchange="toggleSecondDivCO2()">
+                <label for="option2">CO2</label>
+
+                <input type="radio" name="radioGroup" value="LN" id="ln2" onchange="toggleSecondDivLN2()">
+                <label for="option3">LN2</label>
+
+                <input type="radio" name="radioGroup" value="H" id="h2" onchange="toggleSecondDivH2()">
+                <label for="option4">H2</label>
+
+                <input type="radio" name="radioGroup" value="Ar" id="Ar" onchange="toggleSecondDivAr()">
+                <label for="option4">Ar</label>
+            </div>
+
             <div>
                 <label for="graph_dropdown" class="dropdown-label">Number of graphs to generate</label>
                 <select id="graph_dropdown" style="margin-left: 10px;" onchange="toggleRows()">
@@ -42,35 +61,19 @@
                 <select id="sensor_dropdown_1" style="margin-left: 10px;"
                     onchange="disableSelectedOptions('sensor_dropdown_1', 'sensor_dropdown_11'); validateOptions()">
                     <option>--</option>
-                    <option id="0" value="option1">Sensor 1</option>
-                    <option id="1" value="option2">Sensor 2</option>
-                    <option id="2" value="option3">Sensor 3</option>
-                    <option id="3" value="option4">Sensor 4</option>
-                    <!-- <option value="option5">Sensor 5</option>
-                    <option value="option6">Sensor 6</option>
-                    <option value="option7">Sensor 7</option>
-                    <option value="option8">Sensor 8</option>
-                    <option value="option9">Sensor 9</option>
-                    <option value="option10">Sensor 10</option>
-                    <option value="option11">Sensor 11</option>
-                    <option value="option12">Sensor 12</option> -->
+                    <option id="0" value="1">Sensor 1</option>
+                    <option id="1" value="2">Sensor 2</option>
+                    <option id="2" value="3">Sensor 3</option>
+                    <option id="3" value="4">Sensor 4</option>
                 </select>
                 
                 <select id="sensor_dropdown_11" style="margin-left: 10px;"
                     onchange="disableSelectedOptions('sensor_dropdown_11', 'sensor_dropdown_1'); validateOptions()">
                     <option>--</option>
-                    <option id="0" value="option1">Sensor 1</option>
-                    <option id="1" value="option2">Sensor 2</option>
-                    <option id="2" value="option3">Sensor 3</option>
-                    <option id="3" value="option4">Sensor 4</option>
-                    <!-- <option value="option5">Sensor 5</option>
-                    <option value="option6">Sensor 6</option>
-                    <option value="option7">Sensor 7</option>
-                    <option value="option8">Sensor 8</option>
-                    <option value="option9">Sensor 9</option>
-                    <option value="option10">Sensor 10</option>
-                    <option value="option11">Sensor 11</option>
-                    <option value="option12">Sensor 12</option> -->
+                    <option id="0" value="1">Sensor 1</option>
+                    <option id="1" value="2">Sensor 2</option>
+                    <option id="2" value="3">Sensor 3</option>
+                    <option id="3" value="4">Sensor 4</option>
                 </select>
             </div>
             
@@ -151,7 +154,7 @@
     </div>
 
 
-    <div class="outerwraper">
+    <div id="graphCom" class="outerwraper">
         {% comment %} <div id="modalAlert" class="modal">
             <div class="modal-content">
                 <h2>Please wait. The data will be fetched in:</h2>
@@ -159,6 +162,13 @@
                 <p id="countdown" class="countdown-style">60</p>
             </div>
         </div> {% endcomment %}
+        <div id="countdown-lost-cp4" class="modal-lost-communication">
+            <div class="modal-content-lost-cp4">
+              {% comment %} <span class="close">&times;</span> {% endcomment %}
+              <h2>CP4: Connection Lost</h2>
+            </div>
+        </div>
+        
 
         <div id="dragmodal" class="drag-modal">
             {% comment %} <span class="drag-close" style="border: 2px solid red; color: #fafafa; margin-right: 5px; margin-top:5px;" onclick="closeModal()">&times;</span> {% endcomment %}
@@ -167,15 +177,15 @@
 
             <div class="drag-modal-content">
                 <div class="sensor-title">
-                    <div class="sensor_name color_name">Avarege Value</div>
-                    <div id="average_data" class="latest_reading color_name">Disabled</div>
-                    <div class="sensor_name color_name"
+                    <div id="avg_label" class="sensor_name">Avarege Value</div>
+                    <div id="average_data" class="latest_reading">Disabled</div>
+                    <div id="heart_beat_avg" class="sensor_name"
                         style="justify-content:flex-end; padding-right: 1vw;">
                         <i class="fas fa-heart fa-lg"></i>
                     </div>
                 </div>
                 <div>
-                    <div id="update-avg" class="avg-graph-update"></div>
+                    <div id="update-avg" class="avg-graph-update avg-graph-update-color"></div>
                 </div>
                 <div id="averagechart"></div>
             </div>
@@ -184,7 +194,7 @@
                     <h4 style="color: #fafafa; margin-bottom: 5px;">The average chart will be updated in</h4>
                     <h3 id="countdown-timer" style="color: #fafafa;">60</h3>
                 </div>
-            </div> {% endcomment %}          
+            </div> {% endcomment %}
         </div>
 
         {% if sensor_amount <= 4 %} 
@@ -199,7 +209,7 @@
                         </div>
                     </div>
                 <div>
-                <div id="{{ each_sensor.update }}" class="sensor-below-title"></div>
+                <div id="{{ each_sensor.update }}" class="sensor-below-title sensor-below-title-color"></div>
             </div>
 
             <div class="graph-wrapper" id="graph_{{ forloop.counter }}"></div>
@@ -231,7 +241,7 @@
                 </div>
             </div>
             <div>
-                <div id="{{ each_sensor.update }}" class="sensor-below-title"></div>
+                <div id="{{ each_sensor.update }}" class="sensor-below-title sensor-below-title-color">No Update</div>
             </div>
 
             <div class="graph-wrapper" id="graph_{{ forloop.counter }}"></div>
@@ -243,6 +253,7 @@
             </div>
 
             <script src="{% static 'js/main.js' %}"></script>
+            <script src="{% static 'js/socket.js' %}"></script>
 
 </body>
 
