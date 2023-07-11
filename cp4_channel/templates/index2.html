@@ -28,7 +28,7 @@
             <h3 class="average_graph">average graph options</h3>
 
             <h4>Choose the gas you want to monitor</h4>
-            <div style="margin-bottom: 20px;"> 
+            <div id="radio-btns" style="margin-bottom: 20px;"> 
                 <input type="radio" name="radioGroup" value="O" id="o2" onchange="toggleSecondDivO2()">
                 <label for="option1">O2</label>
 
@@ -45,7 +45,7 @@
                 <label for="option4">Ar</label>
             </div>
 
-            <div>
+            <div id="graphs-generator">
                 <label for="graph_dropdown" class="dropdown-label">Number of graphs to generate</label>
                 <select id="graph_dropdown" style="margin-left: 10px;" onchange="toggleRows()">
                     <option>--</option>

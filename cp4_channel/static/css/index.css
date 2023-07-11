@@ -227,10 +227,12 @@ body{
     text-shadow: 0px 0px 12px rgba(102, 119, 136, 0.6);
 }
 
-.red_color{
+.light_red_color{
     color: #FF758D;
     text-shadow: 0px 0px 12px rgba(255, 0, 0, 0.6);
 }
+
+#FF758D
 
 
 .color_name {

@@ -1,4 +1,4 @@
-console.log("main.js: file hello!")
+// console.log("main.js: file hello!")
 
 
 
@@ -52,7 +52,7 @@ function resetDropdownOptions() {
 
 
 function validateOptions() {
-    console.log("main.js: function validation triggered");
+    // console.log("main.js: function validation triggered");
     var sensorDropdown1 = document.getElementById("sensor_dropdown_1");
     var sensorDropdown2 = document.getElementById("sensor_dropdown_11");
 
@@ -82,7 +82,6 @@ function resetSensorValues() {
 
 
 document.addEventListener("DOMContentLoaded", function() {
-    // Your JavaScript code here
     // Make the modal draggable
     const modal = document.getElementById("dragmodal");
     const modalContent = modal.querySelector(".drag-modal-content");
@@ -126,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function closeModal() {
-    console.log("main.js: clicked");
+    // console.log("main.js: clicked");
     modal.style.display = "none";
     resetSensorValues();
 
@@ -268,8 +267,6 @@ function toggleMenu() {
 var graphWrappers = document.querySelectorAll('.graph-wrapper');
 var charts = [];
 var channels = [];
-var levelTresholdLighRed = 19.5;
-var levelTresholdRed = 18.9;
 var isModalVisible = false; // Flag to track modal visibility
 
 

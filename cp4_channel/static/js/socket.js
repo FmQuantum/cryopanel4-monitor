@@ -90,7 +90,7 @@ function fetchLatestChannelLogData() {
             // Handle the response data
             var latestChannelLogData = data;
             // Process the latestChannelLogData as needed
-            // console.log("Socket.js: latest Channel log from Database", latestChannelLogData);
+            console.log("Socket.js: FETCH(fetchLatestChannelLogData) latest Channel log from Database", latestChannelLogData);
     
             // Return the processed data if needed
             return latestChannelLogData;
@@ -102,30 +102,93 @@ function fetchLatestChannelLogData() {
             throw error;
         });
 }
+let matchingChannels;
 
 function processLatestChannelLogData(identifierToMatch) {
     disabledAllOptions();
     fetchLatestChannelLogData()
-      .then(latestChannelLogData => {
-        Object.keys(latestChannelLogData.data).forEach(key => {
-          const avaibleCh = key.replace('ch_', '');
-          const channel = latestChannelLogData.data[key];
-          const identifier = channel.identifier;
-  
-          if (identifier === identifierToMatch) {
-            // console.log("Matching identifier found for channel", avaibleCh, ":", identifier);
-            enableOptionsForIdentifier(avaibleCh);
-          } else {
-            console.log("No Channel with this idenfier!")
-            // alert("No Channel with this idenfier!");
-          }
+        .then(latestChannelLogData => {
+            matchingChannels = [];
+            console.log("matchingChannels right after initiaziated-->", matchingChannels);
+
+            // matching flag for channels that have same idenfier
+            
+            
+
+            Object.keys(latestChannelLogData.data).forEach(key => {
+                const avaibleCh = key.replace('ch_', '');
+                const channel = latestChannelLogData.data[key];
+                const identifier = channel.identifier;
+            //  console.log("socket.js from processLatestChannelLogData() idenfier selected by user --->", identifierToMatch, "type -->", typeof identifierToMatch);
+            //  console.log("socket.js from processLatestChannelLogData() idenfier inside the object --->", identifier, "type -->", typeof identifier);
+                if (identifier === identifierToMatch) {
+                matchingChannels.push(avaibleCh);
+                console.log("Socket.js matchingChannels after Push-->", matchingChannels);
+                }
+            });
+
+            const radioButtonsDiv = document.getElementById('radio-btns');
+            const radioButtons = document.getElementsByName('radioGroup');
+            if (identifierToMatch == 'O') {
+                identifierToMatch = "O2"
+            } else if (identifierToMatch == 'CO'){
+                identifierToMatch = "CO2"
+            } else if (identifierToMatch == 'LN'){
+                identifierToMatch = "LN2"
+            } else if (identifierToMatch == 'Ar'){
+                identifierToMatch = "Ar"
+            } else {
+                identifierToMatch
+            }
+            if (matchingChannels.length >= 2) {
+                console.log("Matching identifier found for channels:", matchingChannels.join(", "));
+                matchingChannels.forEach(avaibleCh => enableOptionsForIdentifier(avaibleCh));
+            } else if (matchingChannels.length === 1) {
+                const feedbackDiv = document.createElement('div');
+                const feedbackHeading = document.createElement('h5');
+                feedbackHeading.textContent = "WARNING: Cannot have an average graph with only one channel monitoring " + identifierToMatch;
+                feedbackHeading.style.color = 'orange';
+                feedbackDiv.appendChild(feedbackHeading);             
+                radioButtonsDiv.insertAdjacentElement('afterend', feedbackDiv);
+
+                // Remove the feedback message after 3 seconds and set false check radio buttons
+                setTimeout(function() {
+                    feedbackDiv.remove();
+                    radioButtons.forEach(button => {
+                        button.checked = false;
+                    });
+                }, 3000);
+                // console.log("Socket.js You cannot generate an average graph with only one channel monitoring" , identifierToMatch, "matchingChannels length -->", matchingChannels.length);
+                // console.log("Socket.js matchingChannels from ELSE-->", matchingChannels);
+            }
+            else {
+                // Display feedback message for no channels
+                const feedbackDiv = document.createElement('div');
+                const feedbackHeading = document.createElement('h5');
+                feedbackHeading.textContent = "WARNING: No Channels found monitoring " + identifierToMatch;
+                feedbackHeading.style.color = 'orange';
+                feedbackDiv.appendChild(feedbackHeading);
+                radioButtonsDiv.insertAdjacentElement('afterend', feedbackDiv);
+
+                // Remove the feedback message after 3 seconds and set false check radio buttons
+                setTimeout(function() {
+                    feedbackDiv.remove();
+                    radioButtons.forEach(button => {
+                        button.checked = false;
+                    });
+                }, 3000);
+
+
+                // console.log("Socket.js No Channels with this identifier!");
+                // alert("No Channels with this identifier!");
+            }
+        })
+        .catch(error => {
+            // Handle the error
+            console.log(error);
         });
-      })
-      .catch(error => {
-        // Handle the error
-        console.log(error);
-      });
 }
+
 
 
 
@@ -173,22 +236,6 @@ function closeModal() {
     resetSensorValues();
 }
 
-// Create an HTTP POST request to send the data to the Django Database
-fetch('/save-lost-connection/', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: jsonifyTimestamp,
-})
-.then(response => response.json())
-.then(data => {
-    console.log("socket.js: data -->",data);
-})
-.catch(error => {
-    console.error('socket.js: Error -->', error);
-});
-
 
 function countDown(element) {
         const updatedElement = document.getElementById(element);
@@ -209,7 +256,7 @@ function countDown(element) {
             localStorage.setItem('appClosedTimestamp', jsonifyTimestamp);
             
 
-        }, 60000); // 60 seconds (60000 milliseconds)
+        }, 20000); // 60 seconds (60000 milliseconds)
         // console.log("socket.js:  CP4: Connection Lost:", jsonifyTimestamp);        
 
 }
@@ -226,16 +273,16 @@ if (storedTimestamp) {
       },
       body: JSON.stringify({ timestamp: storedTimestamp }), // Stringify the stored timestamp
     })
-      .then(response => response.json())
-      .then(data => {
-        console.log("socket.js: data -->", data);
-        // Remove the stored timestamp from local storage after successful registration
-        localStorage.removeItem('appClosedTimestamp');
-      })
-      .catch(error => {
-        console.error('socket.js: Error -->', error);
-      });
-  }
+    .then(response => response.json())
+    .then(data => {
+    console.log("socket.js: FETCH(save-lost-connection)  data -->", data);
+    // Remove the stored timestamp from local storage after successful registration
+    localStorage.removeItem('appClosedTimestamp');
+    })
+    .catch(error => {
+    console.error('socket.js: Error -->', error);
+    });
+}
 
 // reset option each iterations
 function resetDropdownOptions() {
@@ -270,17 +317,19 @@ function resetSensorValues() {
 
 
 var alertDisplayed = false;
+var levelTresholdLighRed = 19.7;
+var levelTresholdRed = 18.5;
 // open connection with websocket
 var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
 socket.onmessage = function (event) {
     var d = event.data
-    console.log("socket.js: raw data from cosumer before parse -->", d);
+    console.log("socket.js: ONMESSAGE METHOD raw data from cosumer before parse -->", d);
     data = JSON.parse(event.data);
     var parsedObject;
     // var channelsObj;
-    console.log("socket.js: raw msg -->", data, "type -->", typeof data);
+    console.log("socket.js: ONMESSAGE METHOD raw msg -->", data, "type -->", typeof data);
     var messageObject = data.message;
-    console.log("socket.js: messageObject --->", messageObject);
+    // console.log("socket.js: messageObject --->", messageObject);
 
     // Disabled options each time the onmessage method is called
     disabledAllOptions();
@@ -384,7 +433,7 @@ socket.onmessage = function (event) {
 
     // use the below jsonString when testing without cp4 and no serial port comment out when using serial port read
     var jsonString = messageObject.data;
-    console.log("socket.js: jsonString --->", jsonString, typeof jsonString);
+    // console.log("socket.js: jsonString --->", jsonString, typeof jsonString);
     var parsedObject = JSON.parse(jsonString);
         var msgObj = {
             data: {
@@ -394,7 +443,7 @@ socket.onmessage = function (event) {
                 date_time: messageObject.date_time
             }
         };
-        console.log("socket.js: msgObj --->", msgObj);
+        // console.log("socket.js: msgObj --->", msgObj);
    
 
 
@@ -459,7 +508,7 @@ socket.onmessage = function (event) {
             for (var i = 0; i < radioInputs.length; i++) {
                 if (radioInputs[i].checked) {
                     selectedIdenfierValue = radioInputs[i].value;
-                    console.log("selected radio input",selectedIdenfierValue)
+                    // console.log("selected radio input",selectedIdenfierValue)
                     break;
                     
                 }
@@ -467,23 +516,23 @@ socket.onmessage = function (event) {
             }
             if (selectedIdenfierValue !== "") {
             // console.log("Selected option:", selectedIdenfierValue, typeof selectedIdenfierValue);
-            console.log("newObj data Channels:", newObject.data.Channels);
+            // console.log("newObj data Channels:", newObject.data.Channels);
 
                 Object.keys(newObject.data.Channels).forEach(key => {
                     const avaibleCh = key.replace('ch_', '');
                     const channel = newObject.data.Channels[key];
                     const identifier = channel.identifier;
-                    console.log("Channel number ---> :", avaibleCh, "idenfier ---> :", identifier);
+                    // console.log("Channel number ---> :", avaibleCh, "idenfier ---> :", identifier);
                     if (identifier === selectedIdenfierValue) {
                     // console.log("Matching identifier found for channel", avaibleCh, ":", identifier);
                     enableOptionsForIdentifier(avaibleCh);
                     } else {
-                        console.log("idenfier not found in the Channels. Options still disabled");
+                        // console.log("idenfier not found in the Channels. Options still disabled");
                     }
                 });
 
             } else {
-            console.log("No option is selected or idenfier not present!.");
+            // console.log("No option is selected or idenfier not present!.");
             }
 
             
@@ -522,9 +571,6 @@ socket.onmessage = function (event) {
     for (var i = 0; i < channels.length; i++) {
         if (newObject !== undefined) {
                 // console.log("socket.js: channels from new raw msg", data.message.data);
-                // console.log("socket.js: channels length -->", channels.length);
-                // console.log("socket.js: i in channels -->", i);
-                // console.log("socket.js: Channels in new obj --->", newObject.data.Channels)
                 value = newObject.data.Channels['ch_' + (i + 1)]["value"];
                 // console.log("socket.js: value ->", value, "type ->", typeof value);
                 roundedValue = Number(value);
@@ -552,7 +598,7 @@ socket.onmessage = function (event) {
             // return data[1] !== undefined ? data[1] : 0;
             return dataStr
         });
-        console.log("socket.js: newGraphDataY --->", "channel:", i + 1, newGraphDataY, "type ->", typeof newGraphDataY);
+        // console.log("socket.js: newGraphDataY --->", "channel:", i + 1, newGraphDataY, "type ->", typeof newGraphDataY);
         
         
         var newGraphDataX = channels[i].map(function (data) {
@@ -582,10 +628,10 @@ socket.onmessage = function (event) {
             color_identifier = '#00fefc'; 
         }
 
-        // add markers and custom marger for datapoint below 19.5%
+        // add markers and custom marger for datapoint below 19.7%
         var markerFillColor = '#00FEFC'; // Default marker color
-        if (lastValue < 19.5) {
-            markerFillColor = '#FF0000'; // Change the marker color for data points below 19.5%
+        if (lastValue < levelTresholdLighRed) {
+            markerFillColor = '#FF0000'; // Change the marker color for data points below 19.7%
         }
 
 
@@ -624,7 +670,7 @@ socket.onmessage = function (event) {
             colors: [color], // Set the color dynamically
             // annotations: {
             //     points: newGraphDataY.map(function (y, index) {
-            //         var markerColor = y < 19.5 ? '#FF0000' : markerFillColor;
+            //         var markerColor = y < levelTresholdLighRed ? '#FF0000' : markerFillColor;
             //         return {
             //             x: newGraphDataX[index],
             //             y: y,
@@ -650,21 +696,15 @@ socket.onmessage = function (event) {
 
 
     }
-    // console.log("socket.js: channels --->", channels);
-    // console.log("socket.js: charts --->", charts);
-
 
 
 //    // Update the AverageChart
 
-    let averageData = [];
-    // console.log("socket.js: avgData->", averageData);
-    
-    
+    let averageData = [];    
     let AverageGraphDataY4;
     let AverageGraphDataY1;
 
-    console.log("socket.js: averageData array ->", averageData);
+    // console.log("socket.js: averageData array ->", averageData);
      
     function updateAverageDataValue(){
         var averageValue = averageData[averageData.length - 1];
@@ -677,37 +717,37 @@ socket.onmessage = function (event) {
             // console.log("socket.js: avg value from if ->", averageValue);
             document.getElementById("average_data").innerHTML = averageValue + "%";
             avg_label.classList.add('gray_color');
-            avg_label.classList.remove('red_color');
+            avg_label.classList.remove('light_red_color');
             avg_label.classList.remove('tiffany_color');
             avarege_title.classList.add('gray_color');
-            avarege_title.classList.remove('red_color');
+            avarege_title.classList.remove('light_red_color');
             avarege_title.classList.remove('tiffany_color');
             heart_beat_avg.classList.add('gray_color');
-            heart_beat_avg.classList.remove('red_color');
+            heart_beat_avg.classList.remove('light_red_color');
             heart_beat_avg.classList.remove('tiffany_color');         
-        } else if (averageValue !== undefined && averageValue !== 0 && averageValue <= 19.5) {
+        } else if (averageValue !== undefined && averageValue !== 0 && averageValue <= levelTresholdLighRed) {
             document.getElementById("average_data").innerHTML = averageValue + "%";
             avg_label.classList.remove('gray_color');
             avg_label.classList.remove('tiffany_color');
-            avg_label.classList.add('red_color');
+            avg_label.classList.add('light_red_color');
             avarege_title.classList.remove('gray_color');
             avarege_title.classList.remove('tiffany_color');
-            avarege_title.classList.add('red_color');
+            avarege_title.classList.add('light_red_color');
             heart_beat_avg.classList.remove('gray_color');
             heart_beat_avg.classList.remove('tiffany_color');
-            heart_beat_avg.classList.add('red_color');
+            heart_beat_avg.classList.add('light_red_color');
         }
         else {
             // console.log("socket.js: avg value from else ->", averageValue);
             document.getElementById("average_data").innerHTML = averageValue + "%";
             avg_label.classList.remove('gray_color');
-            avg_label.classList.remove('red_color');
+            avg_label.classList.remove('light_red_color');
             avg_label.classList.add('tiffany_color');
             avarege_title.classList.remove('gray_color');
-            avarege_title.classList.remove('red_color');
+            avarege_title.classList.remove('light_red_color');
             avarege_title.classList.add('tiffany_color');
             heart_beat_avg.classList.remove('gray_color');
-            heart_beat_avg.classList.remove('red_color');
+            heart_beat_avg.classList.remove('light_red_color');
             heart_beat_avg.classList.add('tiffany_color');
         }
         
@@ -784,7 +824,7 @@ socket.onmessage = function (event) {
             // Update the chart options and data
             
             let idenfier_avg_graf;
-            console.log("from updateAvg graph newObject Data Channels --> ", newObject['data']['Channels']);
+            // console.log("from updateAvg graph newObject Data Channels --> ", newObject['data']['Channels']);
             raw_identifier_option1 = newObject.data.Channels['ch_' + (selectedOption1 + 1)]["identifier"];
             raw_identifier_option2 = newObject.data.Channels['ch_' + (selectedOption2 + 1)]["identifier"];
             // console.log("idenfier sel 1 ---> ", raw_identifier_option1);
@@ -795,7 +835,7 @@ socket.onmessage = function (event) {
 
                 if (raw_identifier_option1 === raw_identifier_option2 && raw_identifier_option1 !== "*" && raw_identifier_option2 !== "*") {
                     idenfier_avg_graf = raw_identifier_option1;
-                    console.log("idenfier avg_graph ---> ", idenfier_avg_graf);
+                    // console.log("idenfier avg_graph ---> ", idenfier_avg_graf);
                 } else {
                     closeModal();
                     alert("You can only generate an avg graph with the same gas.");
@@ -838,8 +878,8 @@ socket.onmessage = function (event) {
                     
                     // annotations: {
                     //     points: AverageGraphDataY4.map(function (y, index) {
-                    //         var markerColor = y < 19.5 ? '#FF0000' : color;
-                    //         // var markerSize = y >= 19.5 ? 4 : 0; // Set marker size to 0 when line is disabled
+                    //         var markerColor = y < levelTresholdLighRed ? '#FF0000' : color;
+                    //         // var markerSize = y >= levelTresholdLighRed ? 4 : 0; // Set marker size to 0 when line is disabled
                     //         return {
                     //             x: AverageGraphDataX[index],
                     //             y: y,
@@ -852,8 +892,8 @@ socket.onmessage = function (event) {
                     //             },
                     //         };
                     //     }).concat(AverageGraphDataY1.map(function (y, index) {
-                    //         var markerColor = y < 19.5 ? '#FF0000' : color2;
-                    //         // var markerSize = y >= 19.5 ? 4 : 0; // Set marker size to 0 when line is disabled
+                    //         var markerColor = y < levelTresholdLighRed ? '#FF0000' : color2;
+                    //         // var markerSize = y >= levelTresholdLighRed ? 4 : 0; // Set marker size to 0 when line is disabled
                     //         return {
                     //             x: AverageGraphDataX[index],
                     //             y: y,
@@ -865,8 +905,8 @@ socket.onmessage = function (event) {
                     //             },
                     //         };
                     //     })).concat(averageData.map(function (y, index) {
-                    //         var markerColor = y < 19.5 ? '#FF0000' : color3;
-                    //         // var markerSize = y >= 19.5 ? 4 : 0; // Set marker size to 0 when line is disabled
+                    //         var markerColor = y < levelTresholdLighRed ? '#FF0000' : color3;
+                    //         // var markerSize = y >= levelTresholdLighRed ? 4 : 0; // Set marker size to 0 when line is disabled
                     //         return {
                     //             x: AverageGraphDataX[index],
                     //             y: y,
@@ -893,11 +933,11 @@ socket.onmessage = function (event) {
     // Add event listener to dropdown1
     sensorDropdown1.addEventListener('change', function() {
         selectedOption1 = Number(sensorDropdown1.options[sensorDropdown1.selectedIndex].getAttribute('id'));
-        console.log("inside onmessage from sensorDrop1 -->", selectedOption1);
+        // console.log("inside onmessage from sensorDrop1 -->", selectedOption1);
         optionsSelected = true;
         updateGraph();
         updateAverageDataValue();
-        console.log("socket.js: selectedOption1:", selectedOption1);
+        // console.log("socket.js: selectedOption1:", selectedOption1);
         // console.log("socket.js: type selectedOption1:", typeof selectedOption1);
     });
 
@@ -905,11 +945,11 @@ socket.onmessage = function (event) {
     // Add event listener to dropdown11
     sensorDropdown11.addEventListener('change', function() {
         selectedOption2 = Number(sensorDropdown11.options[sensorDropdown11.selectedIndex].getAttribute('id'));
-        console.log("inside onmessage from sensorDrop11 -->", selectedOption2);
+        // console.log("inside onmessage from sensorDrop11 -->", selectedOption2);
         optionsSelected = true;
         updateGraph();
         updateAverageDataValue();
-        console.log("socket.js: selectedOption2:", selectedOption2);
+        // console.log("socket.js: selectedOption2:", selectedOption2);
         // console.log("socket.js: type selectedOption2:", typeof selectedOption2);
     });
 
@@ -929,7 +969,7 @@ socket.onmessage = function (event) {
     // Iterate over the update elements and update their inner text
     for (let i = 0; i < channels.length; i++) {
         const elementId = `update${i + 1}`;
-        // countDown(elementId);
+        countDown(elementId);
     }
 
     // Clear the previous interval if it exists
@@ -1063,24 +1103,24 @@ socket.onmessage = function (event) {
             var levelValue = Number(newObject.data.Channels["ch_" + (i + 1)].value).toFixed(2);
             var channelIdentifier = newObject.data.Channels["ch_" + (i + 1)].identifier;
     
-            if (levelValue !== undefined && levelValue > 19.5 && channelIdentifier !== "*") {
+            if (levelValue !== undefined && levelValue > levelTresholdLighRed && channelIdentifier !== "*") {
                 sensorElement.innerText = levelValue + "%";
     
                 channelElement.classList.add('tiffany_color');
-                channelElement.classList.remove('red_color');
+                channelElement.classList.remove('light_red_color');
                 sensorElement.classList.remove('gray_color');
-                sensorElement.classList.remove('red_color');
+                sensorElement.classList.remove('light_red_color');
                 sensorElement.classList.add('tiffany_color');
                 heartbeatElement.classList.remove('heart_beat_red');
                 heartbeatElement.classList.add('heart_beat');
-            } else if (levelValue !== undefined && levelValue !== 0 && levelValue <= 19.5 && channelIdentifier !== "*") {
+            } else if (levelValue !== undefined && levelValue !== 0 && levelValue <= levelTresholdLighRed && channelIdentifier !== "*") {
                 sensorElement.innerText = levelValue + "%";
                 
                 channelElement.classList.remove('tiffany_color');
-                channelElement.classList.add('red_color');
+                channelElement.classList.add('light_red_color');
                 sensorElement.classList.remove('gray_color');
                 sensorElement.classList.remove('tiffany_color');
-                sensorElement.classList.add('red_color');
+                sensorElement.classList.add('light_red_color');
                 heartbeatElement.classList.remove('heart_beat');
                 heartbeatElement.classList.add('heart_beat_red');
             } 
@@ -1089,16 +1129,16 @@ socket.onmessage = function (event) {
     
                 if (channelIdentifier === "*") {
                     channelElement.classList.remove('tiffany_color');
-                    channelElement.classList.remove('red_color');
+                    channelElement.classList.remove('light_red_color');
                     sensorElement.classList.add('gray_color');
                     sensorElement.classList.remove('tiffany_color');
-                    sensorElement.classList.remove('red_color');
+                    sensorElement.classList.remove('light_red_color');
                     heartbeatElement.classList.remove('heart_beat');
                     heartbeatElement.classList.remove('heart_beat_red');
                 }
             }
         } else {
-            console.log("socket.js: Data not fetched yet --> NewObject not created!");
+            // console.log("socket.js: Data not fetched yet --> NewObject not created!");
         }
         
         // Check if the condition is met for any sensor

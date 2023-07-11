@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils import timezone
 from django.utils.html import format_html
 from pytz import timezone as pytz_timezone
-from .models import ChannelLogStatus, DataLog, AlarmLog, ConnectionsLostLog
+from .models import ChannelLogStatus, DataLog, AlarmLog, ConnectionsLostLog, RawMessageLog
 from datetime import datetime
 import pytz
 
@@ -76,4 +76,16 @@ class ConnectionsLostLogAdmin(admin.ModelAdmin):
     def delete_selected_data_logs(modeladmin, queryset):
         queryset.delete()
 
+@admin.register(RawMessageLog)
+class RawMessageLogAdmin(admin.ModelAdmin):
+    list_display = ('formatted_created',)
+    # actions = ['delete_selected_alarm_logs']
+
+    def formatted_created(self, obj):
+        return convert_to_bst_time(obj)
+
+    formatted_created.short_description = 'Created'
+
+    def delete_selected_data_logs(modeladmin, queryset):
+        queryset.delete()
 

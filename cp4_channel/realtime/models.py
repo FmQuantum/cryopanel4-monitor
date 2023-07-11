@@ -36,3 +36,7 @@ class AlarmLog(models.Model):
 class ConnectionsLostLog(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     data = models.JSONField()
+
+class RawMessageLog(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    data = models.JSONField()

@@ -13,6 +13,9 @@ import re
 import asyncio
 import random
 
+from .models import RawMessageLog
+from asgiref.sync import sync_to_async
+
 
 # from .models import ChannelLogStatus, DataLog
 # from channels.generic.websocket import WebsocketConsumer
@@ -121,7 +124,7 @@ custom_data = {
             "ch_4": ""
         },
         "Chan Num": 2,
-        "GPIO": "0x01010101",
+        "GPIO": "0x010101010000",
         "Accessory": "0000",
         "Valve": "VC",
         "Fan": "FC",
@@ -202,22 +205,110 @@ class WSConsumer(AsyncWebsocketConsumer):
             while True:
                 numbers_array = []
                 optionsIdentifier = ["O", "CO", "LN", "H", "Ar"]
+
+                # Generate a random binary string for "Accessory"
+                accessory_digits = [str(random.randint(0, 1)) for _ in range(4)]
+                accessory_value = "".join(accessory_digits)
+                custom_data["data"]["Accessory"] = accessory_value
+
                 for ch_key in custom_data["data"]["Channels"]:         
-                    if random.random() < 0.8:  # 80% chance to generate a random value
-                        number = round(random.uniform(0, 24), 1)
+                    # if random.random() < 0.8:  # 80% chance to generate a random value
+                    #     number = round(random.uniform(0, 24), 1)
+                    #     numbers_array.append(number)
+                    #     value = f"{number} {random.choice(optionsIdentifier)}"
+                    #     # value = f"{number} O"
+                    # else:
+                    #     value = "0 *"
+                    random_value = random.random()
+                    if random_value < 0.05:  # 25% chance for the first range
+                        number = round(random.uniform(0, 17), 1)
                         numbers_array.append(number)
                         value = f"{number} {random.choice(optionsIdentifier)}"
-                        # value = f"{number} O"
-                    else:
+                    elif random_value < 0.6:  # 25% chance for the second range
+                        number = round(random.uniform(18, 22), 1)
+                        numbers_array.append(number)
+                        value = f"{number} {random.choice(optionsIdentifier)}"
+                    elif random_value < 0.05:  # 25% chance for the third range
+                        number = round(random.uniform(23, 24), 1)
+                        numbers_array.append(number)
+                        value = f"{number} {random.choice(optionsIdentifier)}"
+                    else:  # remaining 25% chance for the last range
                         value = "0 *"
                     custom_data["data"]["Channels"][ch_key] = value
-                    print(f'from consumer.py numbers_array --> {numbers_array}')
+                    # print(f'Consumer.py: from send_custom_data() numbers_array --> {numbers_array}')
+
+                # Update GPIO values
+                gpio_digits = ["0x"] * 12  # Reset GPIO to "0x000000000000"
+
+                # Update alarm channel values (digits 1-4)
+                for i, ch_key in enumerate(custom_data["data"]["Channels"]):
+                    value_ch = custom_data["data"]["Channels"][ch_key]
+                    number = ''.join(filter(lambda x: x.isdigit() or x == '.', value_ch))
+                    if 19.5 <= float(number) <= 20.8 or "*" in value_ch:
+                        gpio_digits[i] = "0"
+                    else:
+                        gpio_digits[i] = "1"
+
+                # Update critical alarm channel values (digits 5-8)
+                for i, ch_key in enumerate(custom_data["data"]["Channels"], start=4):
+                    # print(f'i---> {i + 1}, ch_key ---> {ch_key}')
+                    value_ch = custom_data["data"]["Channels"][ch_key]
+                    number = ''.join(filter(lambda x: x.isdigit() or x == '.', value_ch))
+                    # print(f'cusotm_data[data][channels] ---> {number}')
+                    # if float(number) < 18.5 or float(number) >= 23.5:
+                    #     gpio_digits[i] = "1"
+                    if 18.5 <= float(number)<= 23.5 or "*" in value_ch:
+                        gpio_digits[i] = "0"
+                    else:
+                        gpio_digits[i] = "1"
+                    # else:
+                    #     print(f'error ---> {number}')
+
+                # Update battery logic channel values (digits 9-12)
+                for i in range(8, 12):
+                    gpio_digits[i] = str(random.randint(0, 1))  # Random value (0 or 1)
+                    # print(f'gpio_digits ---> {gpio_digits[i]}')
+
+                custom_data["data"]["GPIO"] = "0x" + "".join(gpio_digits)  # Include "0x" prefix
                 
                 # Update Alarm value based on numbers_array
-                if any(number >= 20.8 or number <= 19.5 for number in numbers_array):
-                    custom_data["data"]["Alarm"] = "Critical"
+                value_alarm = 19.5
+                value_critical_low = 18.5
+                value_critical_high = 23.5
+                alarm = ''
+
+                for n in numbers_array:
+                    if not numbers_array: 
+                        alarm = 'No Alarm'
+                        custom_data["data"]["Alarm"] = alarm
+                    elif n < value_critical_low or n > value_critical_high:
+                        if alarm != 'Critical':
+                            alarm = 'Critical'
+                            custom_data["data"]["Alarm"] = alarm
+                            break
+                    elif value_critical_low < n <= value_alarm:
+                        if alarm != 'Critical' or alarm == 'Normal':
+                            alarm = 'Alarm'
+                            custom_data["data"]["Alarm"] = alarm
+                            break
+                    else:
+                        if alarm != 'Critical' or alarm != 'Alarm':
+                            alarm = 'Normal'
+                            custom_data["data"]["Alarm"] = alarm
+                       
+
+
+                # Update "Chan Num" based on the presence of "*" in channel values                
+                num_stars = sum("*" in value for value in custom_data["data"]["Channels"].values())
+
+                if num_stars == 0:
+                    custom_data["data"]["Chan Num"] = 4
+                elif num_stars == 1:
+                    custom_data["data"]["Chan Num"] = 3
+                elif num_stars == 2:
+                    custom_data["data"]["Chan Num"] = 2
                 else:
-                    custom_data["data"]["Alarm"] = "Normal"
+                    custom_data["data"]["Chan Num"] = 1
 
                 now = datetime.datetime.now(tz)
                 date_time = now.strftime("%m/%d/%Y %H:%M:%S")
@@ -226,7 +317,11 @@ class WSConsumer(AsyncWebsocketConsumer):
 
                 result_dict['date_time'] = date_time
                 result_dict['data'] = json.dumps(custom_data)
-                print(f'result dict --> {result_dict}')
+                print(f'Consumer.py: from send_custom_data() result dict --> {result_dict}')
+                
+                # save raw msg into database
+                raw_msg = RawMessageLog(created=now, data=json.dumps(custom_data))
+                await sync_to_async(raw_msg.save)()
 
                 json_result_dict = json.dumps({'message': result_dict})
                 await self.send(json_result_dict)
