@@ -15,10 +15,10 @@ from django.views.decorators.csrf import csrf_exempt
 
 def index(request):
     sensors = [
-        { 'id': 'channel_1', 'name': 'Sensor 1', 'channel': 'sensor1', "heartbeat": 'heart1', 'update': 'update1', 'active': True },
-        { 'id': 'channel_2', 'name': 'Sensor 2', 'channel': 'sensor2', "heartbeat": 'heart2', 'update': 'update2', 'active': True },
-        { 'id': 'channel_3', 'name': 'Sensor 3', 'channel': 'sensor3', "heartbeat": 'heart3', 'update': 'update3', 'active': True },
-        { 'id': 'channel_4', 'name': 'Sensor 4', 'channel': 'sensor4', "heartbeat": 'heart4', 'update': 'update4', 'active': True },
+        { 'id': 'channel_1', 'name': 'Sensor 1', 'custom_name': '', 'channel': 'sensor1', "heartbeat": 'heart1', 'update': 'update1', 'active': True },
+        { 'id': 'channel_2', 'name': 'Sensor 2', 'custom_name': '', 'channel': 'sensor2', "heartbeat": 'heart2', 'update': 'update2', 'active': True },
+        { 'id': 'channel_3', 'name': 'Sensor 3', 'custom_name': '', 'channel': 'sensor3', "heartbeat": 'heart3', 'update': 'update3', 'active': True },
+        { 'id': 'channel_4', 'name': 'Sensor 4', 'custom_name': '', 'channel': 'sensor4', "heartbeat": 'heart4', 'update': 'update4', 'active': True },
 
         # { 'id': 'channel_5', 'name': 'Sensor 5', 'channel': 'sensor5', "heartbeat": 'heart5', 'update': 'update5', 'active': True },
         # { 'id': 'channel_6', 'name': 'Sensor 6', 'channel': 'sensor6', "heartbeat": 'heart6', 'update': 'update6', 'active': True },

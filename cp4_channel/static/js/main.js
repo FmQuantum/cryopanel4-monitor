@@ -1,5 +1,62 @@
 // console.log("main.js: file hello!")
 
+// logic for tooltip CustomName
+
+function addTooltipCustomName(btn, tooltipText) {
+    var tooltip = document.createElement('span');
+    tooltip.className = 'tooltipCutomName';
+    tooltip.textContent = tooltipText;
+    tooltip.style.visibility = 'hidden'; // Set initial visibility to hidden
+    btn.appendChild(tooltip);
+    btn.tooltipElement = tooltip; // Store tooltip element as a property of the button
+  
+    btn.addEventListener('mouseover', function() {
+      btn.tooltipElement.style.visibility = 'visible';
+    });
+  
+    btn.addEventListener('mouseout', function() {
+      btn.tooltipElement.style.visibility = 'hidden';
+    });
+
+    // btn.addEventListener('click', function() {
+    // // Toggle the visibility of the tooltip element
+    //     var tooltipVisibility = btn.tooltipElement.style.visibility;
+    //     if (tooltipVisibility === 'visible') {
+    //         btn.tooltipElement.style.visibility = 'hidden';
+    //     } 
+    //     else {
+    //         btn.tooltipElement.style.visibility = 'visible';
+    //     }
+    // });
+
+}
+
+const sensor_name1 = document.getElementById('channel_1');
+const sensor_name2 = document.getElementById('channel_2');
+const sensor_name3 = document.getElementById('channel_3');
+const sensor_name4 = document.getElementById('channel_4');
+
+addTooltipCustomName(sensor_name1, 'Click "Sensor" to add a custom name');
+addTooltipCustomName(sensor_name2, 'Click "Sensor" to add a custom name');
+addTooltipCustomName(sensor_name3, 'Click "Sensor" to add a custom name');
+addTooltipCustomName(sensor_name4, 'Click "Sensor" to add a custom name');
+
+
+function toggleInputDisplay(btn) {
+    var inputElement = btn.querySelector('.custom-name-input');
+    if (inputElement.style.display === 'none') {
+      inputElement.style.display = 'inline';
+    } else {
+      inputElement.style.display = 'none';
+    }
+}
+  
+var sensorDivs = document.querySelectorAll('.sensor_name');
+    sensorDivs.forEach(function(div) {
+    div.addEventListener('click', function() {
+        toggleInputDisplay(this);
+    });
+});
 
 
 // Countdown timer logic

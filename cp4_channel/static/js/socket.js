@@ -499,6 +499,112 @@ socket.onmessage = function (event) {
             
             // console.log("socket.js: newObject -->", newObject, "type -->", typeof newObject);
             // chsObj = newObject['data']['Channels'];
+            
+            
+            //Logic off and on led buttons
+            var d1 = document.getElementById('d1-btn');
+            var d2 = document.getElementById('d2-btn')
+            var d3 = document.getElementById('d3-btn')
+            var d4 = document.getElementById('d4-btn')
+            
+            var accessoryObj = {"d1": "","d2": "","d3": "","d4": ""}
+            var gpioObj = {"gpio_1": {"alarm": "","critical": "", "battery": ""},"gpio_2": {"alarm": "","critical": "","battery": ""},"gpio_3": {"alarm": "","critical": "","battery": ""},"gpio_4": {"alarm": "","critical": "","battery": ""}}
+            // console.log("socket.js Accessory Obj --->", accessoryObj, typeof accessoryObj);
+            accessoryOutput = newObject['data']['Accessory'];
+            gpioOutput = newObject['data']['GPIO'];
+            // console.log("socket.js Accessory values --->", accessoryOutput);
+            accessoryObj = {
+                "d1": accessoryOutput[0],
+                "d2": accessoryOutput[1],
+                "d3": accessoryOutput[2],
+                "d4": accessoryOutput[3]
+            };
+            gpioObj = {
+                "gpio_1": {"alarm": gpioOutput[2],"critical": gpioOutput[6], "battery": gpioOutput[10]},
+                "gpio_2": {"alarm": gpioOutput[3],"critical": gpioOutput[7],"battery": gpioOutput[11]},
+                "gpio_3": {"alarm": gpioOutput[4],"critical": gpioOutput[8],"battery": gpioOutput[12]},
+                "gpio_4": {"alarm": gpioOutput[5],"critical": gpioOutput[9],"battery": gpioOutput[13]}
+            }
+            console.log("socket.js GPIO Obj --->", gpioObj, typeof gpioObj);
+
+            function addTooltip(btn, tooltipText) {
+                var tooltip = document.createElement('span');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = tooltipText;
+                tooltip.style.visibility = 'hidden'; // Set initial visibility to hidden
+                btn.appendChild(tooltip);
+                btn.tooltipElement = tooltip; // Store tooltip element as a property of the button
+              
+                btn.addEventListener('mouseover', function() {
+                  btn.tooltipElement.style.visibility = 'visible';
+                });
+              
+                btn.addEventListener('mouseout', function() {
+                  btn.tooltipElement.style.visibility = 'hidden';
+                });
+
+                // btn.addEventListener('click', function() {
+                // // Toggle the visibility of the tooltip element
+                //     var tooltipVisibility = btn.tooltipElement.style.visibility;
+                //     if (tooltipVisibility === 'visible') {
+                //         btn.tooltipElement.style.visibility = 'hidden';
+                //     } else {
+                //         btn.tooltipElement.style.visibility = 'visible';
+                //     }
+                // });
+            }
+              
+            function removeTooltip(btn) {
+            if (btn.tooltipElement) {
+                btn.tooltipElement.remove();
+                btn.tooltipElement = null;
+            }
+            }
+
+            if (accessoryObj['d1'] == '0') {
+                d1.classList.remove('led-blue-active');
+                d1.classList.add('led-blue-inactive');
+                removeTooltip(d1);
+            } else {
+                d1.classList.remove('led-blue-inactive');
+                d1.classList.add('led-blue-active');
+                addTooltip(d1, "Digital Input 1: ON");
+            }
+            
+            if (accessoryObj['d2'] == '0') {
+                d2.classList.remove('led-blue-active');
+                d2.classList.add('led-blue-inactive');
+                removeTooltip(d2);
+            } else {
+                d2.classList.remove('led-blue-inactive');
+                d2.classList.add('led-blue-active');
+                addTooltip(d2, "Digital Input 2: ON");
+            }
+            
+            if (accessoryObj['d3'] == '0') {
+                d3.classList.remove('led-blue-active');
+                d3.classList.add('led-blue-inactive');
+                removeTooltip(d3);
+            } else {
+                d3.classList.remove('led-blue-inactive');
+                d3.classList.add('led-blue-active');
+                addTooltip(d3, "Digital Input 3: ON");
+            }
+            
+            if (accessoryObj['d4'] == '0') {
+                d4.classList.remove('led-blue-active');
+                d4.classList.add('led-blue-inactive');
+                removeTooltip(d4);
+            } else {
+                d4.classList.remove('led-blue-inactive');
+                d4.classList.add('led-blue-active');
+                addTooltip(d4, "Digital Input 4: ON");
+            }
+
+            
+
+            // console.log("socket.js New Accessory Obj --->", accessoryObj, typeof accessoryObj);
+
 
 
             // Then check witch idenfier is seleced by the user and enable the corrisponding option ---> logic below!

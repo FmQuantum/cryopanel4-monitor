@@ -272,7 +272,7 @@ class WSConsumer(AsyncWebsocketConsumer):
                 custom_data["data"]["GPIO"] = "0x" + "".join(gpio_digits)  # Include "0x" prefix
                 
                 # Update Alarm value based on numbers_array
-                value_alarm = 19.5
+                value_alarm = 19.7
                 value_critical_low = 18.5
                 value_critical_high = 23.5
                 alarm = ''
@@ -290,9 +290,12 @@ class WSConsumer(AsyncWebsocketConsumer):
                         if alarm != 'Critical' or alarm == 'Normal':
                             alarm = 'Alarm'
                             custom_data["data"]["Alarm"] = alarm
-                            break
                     else:
-                        if alarm != 'Critical' or alarm != 'Alarm':
+                        if alarm == 'Critical':
+                            break
+                        elif alarm == 'Alarm':
+                            break
+                        else:
                             alarm = 'Normal'
                             custom_data["data"]["Alarm"] = alarm
                        

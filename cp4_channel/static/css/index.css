@@ -42,6 +42,41 @@ body{
   transition: transform 0.3s ease;
 }
 
+/* tooltip custom name */
+.tooltipCutomName {
+    position: absolute;
+    top: 25px;
+    background-color: rgba(36, 224, 255, 0.6);
+    box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset rgba(0, 0, 38, 0.5) 0 -1px 9px, #3F8CFF 0 2px 14px;
+    color: #fafafa;
+    padding: 10px;
+    font-size: 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+    z-index: 9999 !important;
+    right: 5px;
+    letter-spacing: 2px;
+}
+
+.custom-name-span {
+    margin-left: 4px;
+}
+
+
+.custom-name-input {
+    background: rgba( 156, 255, 250, 0.15 );
+    box-shadow: 0 8px 32px 0 rgba( 156, 255, 250, 0.1 );
+    backdrop-filter: blur( 4px );
+    -webkit-backdrop-filter: blur( 4px );
+    border-radius: 3px;
+    border: 1px solid rgba( 255, 255, 255, 0.18 );
+}
+
+.custom-name-input::placeholder {
+    color: white;
+    /* text-align: center; */
+}
+
 #generate_btn {
   padding: 10px;
   margin-left: 10vw;
@@ -197,6 +232,7 @@ body{
 }
 
 .sensor_name {
+    position: relative;
     display: flex;
     flex: 1;
     justify-content: flex-start;
@@ -229,6 +265,11 @@ body{
 
 .light_red_color{
     color: #FF758D;
+    text-shadow: 0px 0px 12px rgba(255, 0, 0, 0.6);
+}
+
+.red_color{
+    color: red;
     text-shadow: 0px 0px 12px rgba(255, 0, 0, 0.6);
 }
 

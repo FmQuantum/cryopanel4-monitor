@@ -10,17 +10,40 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ledbutton.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    {% comment %} <script src="jquery-3.6.4.min.js"></script> {% endcomment %}
     <title>Cryopanel4 Monitor</title>
 </head>
 
 <body>
-    <div class="top-navbar" onclick="toggleMenu()">
+    <div class="top-navbar" >
         <a id="lg-quantum" href="#" class="logo-img">
-            <img id="logo-quantum" src="{% static 'images/icon/quantum-logo.png' %}" alt="quantum-logo" />
+            <img id="logo-quantum" src="{% static 'images/icon/quantum-logo.png' %}" alt="quantum-logo" onclick="toggleMenu()"/>
         </a>
         <div class="logo-name">Quantum Cryogenics</div>
         <div id="app" style="display: flex; flex: 1; justify-content: center; margin-top: 15px;"></div>
+
+        {% comment %} led buttons {% endcomment %}
+        <div class="container">
+            <div class="led-box">
+              <div id="d1-btn" class="led-blue"></div>
+              <p>D1</p>
+            </div>
+              <div class="led-box">
+              <div id="d2-btn" class="led-blue"></div>
+              <p>D2</p>
+            </div>
+            <div class="led-box">
+              <div id="d3-btn" class="led-blue"></div>
+              <p>D3</p>
+            </div>
+            <div class="led-box">
+              <div id="d4-btn" class="led-blue"></div>
+              <p>D4</p>
+            </div>
+        </div>
+
     </div>
 
     <div class="menu-content">
@@ -201,7 +224,10 @@
             {% for each_sensor in sensors %} 
                 <div class="sensor_box sensor-xl">
                     <div class="sensor-title">
-                        <div id="{{ each_sensor.id }}" class="sensor_name">{{ each_sensor.name }}</div>
+                        <div id="{{ each_sensor.id }}" class="sensor_name">{{ each_sensor.name }}
+                            <span id="sensor1-customName" class="custom-name-span" ></span>
+                            <input type="text" id="{{ each_sensor.id }}-customNameInput" class="custom-name-input" placeholder=" / Enter custom name" style="display: none;">
+                        </div>
                         <div id="{{ each_sensor.channel }}" class="latest_reading">NO DATA</div>
                         <div id="{{ each_sensor.heartbeat }}" class="sensor_name"
                             style="justify-content:flex-end; padding-right: 1vw;">
@@ -248,8 +274,6 @@
             </div>
             {% endfor %}
             {% endif %}
-            </div>
-            <div class="bottom-navbar">
             </div>
 
             <script src="{% static 'js/main.js' %}"></script>
