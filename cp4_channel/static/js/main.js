@@ -70,14 +70,35 @@ sensorDivs.forEach(function(div) {
     });
 });
 
+
+
+function sensorPress(element) {
+        var divId = element.id
+        var spanEl = document.getElementById(divId + "-customName");
+        var inputEl = document.getElementById(divId + "-customNameInput");
+        var spanId = spanEl.id;
+        var inputId = inputEl.id;
+        // console.log("span id --->", spanId, "input id --->", inputId);
+        if (inputEl.style.display == 'none') {
+            // console.log("input el INLINE");
+            spanEl.style.display = 'none';
+        }
+}
+
+
+
+
 var inputCustomNames = document.querySelectorAll('.custom-name-input');
 
 inputCustomNames.forEach(function(input) {
     var inputId = input.id;
+
     input.addEventListener('keydown', function(event) {
         // keyCode 13 is for enter so we say Listen the event is press the button enter(keydown) and do something
         if(event.keyCode === 13) {
             var channelId = inputId.substring(0, inputId.indexOf('-customNameInput'));
+            var spanEl = document.getElementById(channelId + '-customName');
+
             let inputValue;
             if (input.value == "") {
                inputValue = ""; 
@@ -92,6 +113,9 @@ inputCustomNames.forEach(function(input) {
             // Update the custom name span with the inputValue for the is current session. It will be sent to the database anyway, retrived and updated in the index(request) method in views.py once the startup.
             var customNameSpan = document.getElementById(channelId + '-customName');
             customNameSpan.textContent = inputValue;
+            
+            spanEl.style.display = 'inline'; // Re add span element when user press enter
+            
             
             input.style.display = 'none'; // Remove the input field
             input.value = ''; // Reset the input field value

@@ -62,6 +62,10 @@ body{
     margin-left: 4px;
 }
 
+.remove-custom-name-span {
+    display: none;
+}
+
 
 .custom-name-input {
     background: rgba( 156, 255, 250, 0.15 );

@@ -105,5 +105,10 @@ class CustomNameAdmin(admin.ModelAdmin):
 
     def delete_selected_data_logs(modeladmin, queryset):
         queryset.delete()
-    
+
+    def save_model(self, request, obj, form, change):
+        # Perform any additional processing before saving the model
+        super().save_model(request, obj, form, change)
+        # Additional processing after saving the model, if needed
+
 

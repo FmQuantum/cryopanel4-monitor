@@ -224,7 +224,7 @@
             {% for each_sensor in sensors %} 
                 <div class="sensor_box sensor-xl">
                     <div class="sensor-title">
-                        <div id="{{ each_sensor.id }}" class="sensor_name">{{ each_sensor.name }}
+                        <div id="{{ each_sensor.id }}" class="sensor_name div_title" onclick="sensorPress(this)">{{ each_sensor.name }}
                             <span id="{{each_sensor.id}}-customName" class="custom-name-span" >{{ each_sensor.custom_name }}</span>
                             <input type="text" id="{{ each_sensor.id }}-customNameInput" class="custom-name-input" placeholder=" Type and press ENTER" style="color: rgba(255,255,255,0.6); display: none;">
                         </div>
