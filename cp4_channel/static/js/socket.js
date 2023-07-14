@@ -82,6 +82,59 @@ function enableOptionsForIdentifier(avaibleCh) {
 }
 
 
+
+// Retrive Custom Names from database
+// function fetchCustomNames() {
+//     return fetch('/get_custom_names/')
+//         .then(response => response.json())
+//         .then(data => {
+//             console.log("Socket.js: FETCH(getCustomNames) Response data:", data);
+//             // Process the response data as needed
+//             if (data.custom_names) {
+//                 var latestCustomNames = data.custom_names;
+//                 console.log("Socket.js: FETCH(getCustomNames) Latest Custom Names from Database", latestCustomNames);
+//                 return latestCustomNames;
+//             } else {
+//                 throw new Error("Invalid response data");
+//             }
+//         })
+//         .catch(error => {
+//             console.log("Socket.js: FETCH(getCustomNames) Error:", error);
+//             throw error;
+//         });
+// }
+
+
+
+let custom_names = {}
+
+function fetchCustomNames() {
+    return fetch('/get_custom_names/')
+        .then(response => response.json())
+        .then(data => {
+            console.log("Socket.js: FETCH(getCustomNames) Response data:", data);
+            // Process the response data as needed
+            if (data.custom_names) {
+                var latestCustomNames = data.custom_names;
+                for (let i = 0; i < latestCustomNames.length; i++) {
+                    const [channelId, customName] = latestCustomNames[i];
+                    custom_names[channelId] = customName;
+                }
+                console.log("custom_names: ", custom_names);
+                return custom_names;
+            } else {
+                throw new Error("Invalid response data");
+            }
+        })
+        .catch(error => {
+            console.log("Socket.js: FETCH(getCustomNames) Error:", error);
+            throw error;
+        });
+}
+
+
+
+
 // Retrive last Channel Log Status from DataBase
 function fetchLatestChannelLogData() {
     return fetch('/get_channel_log_data/') // Update the URL to match your Django route
@@ -330,6 +383,10 @@ socket.onmessage = function (event) {
     console.log("socket.js: ONMESSAGE METHOD raw msg -->", data, "type -->", typeof data);
     var messageObject = data.message;
     // console.log("socket.js: messageObject --->", messageObject);
+
+    // fetch custom name from database
+    fetchCustomNames();
+    // console.log("custom_names --->", custom_names);
 
     // Disabled options each time the onmessage method is called
     disabledAllOptions();

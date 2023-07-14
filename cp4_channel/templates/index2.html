@@ -225,8 +225,8 @@
                 <div class="sensor_box sensor-xl">
                     <div class="sensor-title">
                         <div id="{{ each_sensor.id }}" class="sensor_name">{{ each_sensor.name }}
-                            <span id="sensor1-customName" class="custom-name-span" ></span>
-                            <input type="text" id="{{ each_sensor.id }}-customNameInput" class="custom-name-input" placeholder=" / Enter custom name" style="display: none;">
+                            <span id="{{each_sensor.id}}-customName" class="custom-name-span" >{{ each_sensor.custom_name }}</span>
+                            <input type="text" id="{{ each_sensor.id }}-customNameInput" class="custom-name-input" placeholder=" Type and press ENTER" style="color: rgba(255,255,255,0.6); display: none;">
                         </div>
                         <div id="{{ each_sensor.channel }}" class="latest_reading">NO DATA</div>
                         <div id="{{ each_sensor.heartbeat }}" class="sensor_name"

@@ -41,22 +41,84 @@ addTooltipCustomName(sensor_name2, 'Click "Sensor" to add a custom name');
 addTooltipCustomName(sensor_name3, 'Click "Sensor" to add a custom name');
 addTooltipCustomName(sensor_name4, 'Click "Sensor" to add a custom name');
 
+let customNamesObj = {
+    "channel_1":"",
+    "channel_2":"",
+    "channel_3":"",
+    "channel_4":""
+}
 
-function toggleInputDisplay(btn) {
+function toggleInputDisplay(btn, sensorId) {
     var inputElement = btn.querySelector('.custom-name-input');
     if (inputElement.style.display === 'none') {
       inputElement.style.display = 'inline';
+      inputElement.focus(); // Set focus to the input field
     } else {
       inputElement.style.display = 'none';
     }
+    
+    // Perform additional actions based on the clicked sensor ID
+    // console.log('Clicked sensor ID:', sensorId);
 }
   
 var sensorDivs = document.querySelectorAll('.sensor_name');
-    sensorDivs.forEach(function(div) {
+
+sensorDivs.forEach(function(div) {
+    var sensorId = div.id;
     div.addEventListener('click', function() {
-        toggleInputDisplay(this);
+        toggleInputDisplay(this, sensorId);
     });
 });
+
+var inputCustomNames = document.querySelectorAll('.custom-name-input');
+
+inputCustomNames.forEach(function(input) {
+    var inputId = input.id;
+    input.addEventListener('keydown', function(event) {
+        // keyCode 13 is for enter so we say Listen the event is press the button enter(keydown) and do something
+        if(event.keyCode === 13) {
+            var channelId = inputId.substring(0, inputId.indexOf('-customNameInput'));
+            let inputValue;
+            if (input.value == "") {
+               inputValue = ""; 
+            } else {
+                inputValue = "/ " + input.value.toUpperCase(); 
+            }
+            // var inputValue = "/ " + input.value.toUpperCase();
+            console.log("input Id --->",inputId, "Custom Name --->", inputValue);
+            customNamesObj[channelId] = inputValue
+            console.log("custom name obj --->",customNamesObj);
+            
+            // Update the custom name span with the inputValue for the is current session. It will be sent to the database anyway, retrived and updated in the index(request) method in views.py once the startup.
+            var customNameSpan = document.getElementById(channelId + '-customName');
+            customNameSpan.textContent = inputValue;
+            
+            input.style.display = 'none'; // Remove the input field
+            input.value = ''; // Reset the input field value
+
+            // Make an AJAX request to save the custom names to the Django view
+            var jsonCustomNameObj = JSON.stringify(customNamesObj)
+            fetch('/save-custom-names/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonCustomNameObj,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+
+        }
+    });
+});
+
+
 
 
 // Countdown timer logic

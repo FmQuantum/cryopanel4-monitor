@@ -40,3 +40,11 @@ class ConnectionsLostLog(models.Model):
 class RawMessageLog(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     data = models.JSONField()
+
+class CustomName(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    channel_id = models.CharField(max_length=100, unique=True)
+    custom_name = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ['-created']

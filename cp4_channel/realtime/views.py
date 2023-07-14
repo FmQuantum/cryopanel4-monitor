@@ -4,16 +4,44 @@ import pytz
 from pytz import timezone as pytz_timezone
 from django.shortcuts import render
 from django.http import JsonResponse
-from .models import ChannelLogStatus, DataLog, AlarmLog, ConnectionsLostLog
+from .models import ChannelLogStatus, DataLog, AlarmLog, ConnectionsLostLog, CustomName
 import json
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
 
 from django.views.decorators.csrf import csrf_exempt
 
+custom_obj = {}
+custom_objIndex = {}
 
+def get_custom_name(request):
+    global custom_obj  # Access the global custom_names variable 
+    if request.method == 'GET':
+        try:
+            custom_names = CustomName.objects.all().values('channel_id', 'custom_name')
+            for custom_name in custom_names:
+                channel = custom_name['channel_id']
+                custom_n = custom_name['custom_name']
+                custom_obj[channel] = custom_n
+                print(f'channel_id: {channel}, custom_name: {custom_n}')
+                print(f'custom obj ---> {custom_obj}')
+            
+            return JsonResponse({'custom_names': list(custom_obj.items())})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
 
 def index(request):
+    global custom_obj  # Access the global custom_obj variable
+    
+    # Retrieve custom names if custom_obj is empty
+    if not custom_objIndex:
+        custom_names = CustomName.objects.all().values('channel_id', 'custom_name')
+        for custom_name in custom_names:
+            channel = custom_name['channel_id']
+            custom_n = custom_name['custom_name']
+            custom_objIndex[channel] = custom_n
+
+
     sensors = [
         { 'id': 'channel_1', 'name': 'Sensor 1', 'custom_name': '', 'channel': 'sensor1', "heartbeat": 'heart1', 'update': 'update1', 'active': True },
         { 'id': 'channel_2', 'name': 'Sensor 2', 'custom_name': '', 'channel': 'sensor2', "heartbeat": 'heart2', 'update': 'update2', 'active': True },
@@ -28,12 +56,16 @@ def index(request):
         # { 'id': 'channel_9', 'name': 'Sensor 9', 'channel': 'sensor9', "heartbeat": 'heart9', 'update': 'update9', 'active': True },
         # { 'id': 'channel_10', 'name': 'Sensor 10', 'channel': 'sensor10', "heartbeat": 'heart10', 'update': 'update10', 'active': True },
         # { 'id': 'channel_11', 'name': 'Sensor 11', 'channel': 'sensor11', "heartbeat": 'heart11', 'update': 'update11', 'active': True },
-        # { 'id': 'channel_12', 'name': 'Sensor 12', 'channel': 'sensor12', "heartbeat": 'heart12', 'update': 'update12', 'active': True },
-        
+        # { 'id': 'channel_12', 'name': 'Sensor 12', 'channel': 'sensor12', "heartbeat": 'heart12', 'update': 'update12', 'active': True },   
     ]
-    # sensor4 = [
-    #     { 'id': 'channel_4', 'name': 'Sensor 4', 'channel': 'sensor4', "heartbeat": 'heart4', 'update': 'update4', 'active': True }
-    # ]
+    
+    for sensor in sensors:
+        channel_id = sensor['id']
+        print(f'index() sensor["id"] ---> {channel_id}')
+        print(f'from index() custom objIndex ---> {custom_objIndex}')
+        if channel_id in custom_objIndex:
+             sensor['custom_name'] = custom_objIndex[channel_id]
+
     sensor_amount = len(sensors)
     # sensor_amount = 6
     return render(request, 'index2.html',
@@ -56,6 +88,13 @@ def convert_to_bst_time(bst_time):
     bst_tz = pytz_timezone('Europe/London')
     bst_time = bst_time.astimezone(bst_tz)
     return bst_time.strftime('%Y-%m-%d %H:%M:%S')
+
+
+
+
+
+ 
+    
 
 # retrive latest channel logs from database get method used in socket.js to pass from views.py to socket.js we define url in urls.py
 def get_channel_log_data(request):
@@ -167,7 +206,8 @@ def save_connection_lost(request):
             timestamp = json.loads(timestamp_string)
             application_closed_value = timestamp['applicationClosed']
             print(f'views.py from save_connection_lost() timestamp powercut application --> {application_closed_value} type --> {type(application_closed_value)}')
-            date_time = datetime.strptime(application_closed_value, '%m/%d/%Y, %H:%M:%S')
+            # date_time = datetime.strptime(application_closed_value, '%m/%d/%Y, %H:%M:%S')
+            date_time = datetime.strptime(application_closed_value, '%d/%m/%Y, %H:%M:%S')
             aware_date_time = make_aware(date_time)
             powercut = ConnectionsLostLog(created=aware_date_time, data=timestamp)
             powercut.save()
@@ -176,6 +216,30 @@ def save_connection_lost(request):
             return JsonResponse({'views.py from save_connection_lost() status -->': 'error', 'message': str(e)})
     else:
         return JsonResponse({'views.py from save_connection_lost() status -->': 'error', 'message': 'Invalid request method'})
+
+
+
+
+
+@csrf_exempt
+def save_custom_names(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        custom_names = data
+        print(f'custom_name obj ---> {custom_names}')
+        for channel_id, custom_name in custom_names.items():
+            if custom_name:
+                try:
+                    date_time = datetime.now()
+                    aware_date_time = make_aware(date_time)
+                    custom_obj = CustomName.objects.get(channel_id=channel_id)
+                    if custom_obj.custom_name != custom_name:
+                        custom_obj.custom_name = custom_name
+                        custom_obj.created = aware_date_time  # Update the 'created' timestamp
+                        custom_obj.save(update_fields=['custom_name', 'created'])
+                except CustomName.DoesNotExist:
+                    CustomName.objects.create(channel_id=channel_id, custom_name=custom_name, created=aware_date_time)
+        return JsonResponse({'message': 'Custom names saved successfully.'})
 
 
 
